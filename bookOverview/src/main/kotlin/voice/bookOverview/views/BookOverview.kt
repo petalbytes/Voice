@@ -104,6 +104,7 @@ fun BookOverviewScreen(modifier: Modifier = Modifier) {
     onSearchQueryChange = bookOverviewViewModel::onSearchQueryChange,
     onSearchBookClick = bookOverviewViewModel::onSearchBookClick,
     onPermissionBugCardClick = bookOverviewViewModel::onPermissionBugCardClick,
+    onSearchButtonClick = bookOverviewViewModel::onSearchButtonClick,
   )
   val deleteBookViewState = deleteBookViewModel.state.value
   if (deleteBookViewState != null) {
@@ -165,6 +166,7 @@ internal fun BookOverview(
   onSearchQueryChange: (String) -> Unit,
   onSearchBookClick: (BookId) -> Unit,
   onPermissionBugCardClick: () -> Unit,
+  onSearchButtonClick: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
   val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -180,6 +182,7 @@ internal fun BookOverview(
         onActiveChange = onSearchActiveChange,
         onQueryChange = onSearchQueryChange,
         onSearchBookClick = onSearchBookClick,
+        onSearchButtonClick = onSearchButtonClick,
       )
     },
     floatingActionButton = {
@@ -245,6 +248,7 @@ fun BookOverviewPreview(
       onSearchQueryChange = {},
       onSearchBookClick = {},
       onPermissionBugCardClick = {},
+      onSearchButtonClick = {},
     )
   }
 }

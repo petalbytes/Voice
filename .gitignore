@@ -21,3 +21,9 @@ releases
 /plugins/.idea/workspace.xml
 /.kotlin
 /.idea/deviceManager.xml
+
+# Cursor and Windsurf
+.cursor/
+
+# Gradle properties
+gradle.properties

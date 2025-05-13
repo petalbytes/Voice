@@ -67,6 +67,8 @@ constructor(
   private val scope = MainScope()
   private var searchActive by mutableStateOf(false)
   private var query by mutableStateOf("")
+  private var searchBooks by mutableStateOf(emptyList<BookOverviewItemViewState>())
+  private var isSearching by mutableStateOf(false)
 
   fun attach() {
     mediaScanner.scan()
@@ -151,13 +153,7 @@ constructor(
       val recentBookSearch = remember {
         recentBookSearchDao.recentBookSearches()
       }.collectAsState(initial = emptyList()).value.reversed()
-      recentBookSearchDao.recentBookSearches()
-      var searchBooks by remember {
-        mutableStateOf(emptyList<BookOverviewItemViewState>())
-      }
-      LaunchedEffect(query) {
-        searchBooks = search.search(query).map { it.toItemViewState() }
-      }
+      
       val suggestedAuthors: List<String> by produceState(initialValue = emptyList()) {
         value = contentRepo.all()
           .filter { it.isActive }
@@ -166,7 +162,7 @@ constructor(
           .sortedNaturally()
       }
 
-      val bookSearchViewState = if (query.isNotBlank()) {
+      if (query.isNotBlank() && searchBooks.isNotEmpty()) {
         BookSearchViewState.SearchResults(
           query = query,
           books = searchBooks,
@@ -179,7 +175,6 @@ constructor(
           query = query,
         )
       }
-      bookSearchViewState
     } else {
       BookSearchViewState.EmptySearch(
         recentQueries = emptyList(),
@@ -208,12 +203,32 @@ constructor(
   fun onSearchActiveChange(active: Boolean) {
     if (active && !searchActive) {
       query = ""
+      searchBooks = emptyList()
     }
     this.searchActive = active
   }
 
   fun onSearchQueryChange(query: String) {
     this.query = query
+  }
+  
+  fun onSearchButtonClick() {
+    if (query.isBlank()) return
+    
+    isSearching = true
+    scope.launch {
+      try {
+        // Search local books
+        searchBooks = search.search(query).map { it.toItemViewState() }
+        
+        // Save to recent searches if we got results
+        if (searchBooks.isNotEmpty() && query.isNotBlank()) {
+          recentBookSearchDao.add(query.trim())
+        }
+      } finally {
+        isSearching = false
+      }
+    }
   }
 
   fun onSearchBookClick(id: BookId) {
