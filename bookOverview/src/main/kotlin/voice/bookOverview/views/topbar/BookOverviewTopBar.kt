@@ -21,6 +21,7 @@ import voice.bookOverview.overview.BookOverviewViewState
 import voice.bookOverview.search.BookSearchViewState
 import voice.common.BookId
 import voice.common.compose.VoiceTheme
+import voice.search.repository.DiscoveryResult
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
@@ -34,6 +35,8 @@ internal fun BookOverviewTopBar(
   onQueryChange: (String) -> Unit,
   onSearchBookClick: (BookId) -> Unit,
   onSearchButtonClick: () -> Unit,
+  onDiscoveryResultClick: (DiscoveryResult) -> Unit = {},
+  onRetryDiscoverySearch: () -> Unit = {},
 ) {
   Column {
     val horizontalPadding by animateDpAsState(
@@ -50,6 +53,8 @@ internal fun BookOverviewTopBar(
       onSettingsClick = onSettingsClick,
       onSearchBookClick = onSearchBookClick,
       onSearchButtonClick = onSearchButtonClick,
+      onDiscoveryResultClick = onDiscoveryResultClick,
+      onRetryDiscoverySearch = onRetryDiscoverySearch,
       searchActive = viewState.searchActive,
       showMigrateIcon = viewState.showMigrateIcon,
       showMigrateHint = viewState.showMigrateHint,
@@ -103,6 +108,8 @@ private fun BookOverviewTopBarPreview() {
       onQueryChange = {},
       onSearchBookClick = {},
       onSearchButtonClick = {},
+      onDiscoveryResultClick = {},
+      onRetryDiscoverySearch = {},
     )
   }
 }

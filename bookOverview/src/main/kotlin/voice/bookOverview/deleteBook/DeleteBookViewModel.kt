@@ -12,6 +12,7 @@ import voice.bookOverview.bottomSheet.BottomSheetItem
 import voice.bookOverview.bottomSheet.BottomSheetItemViewModel
 import voice.bookOverview.di.BookOverviewScope
 import voice.common.BookId
+import voice.data.repo.BookRepository
 import voice.logging.core.Logger
 import javax.inject.Inject
 
@@ -25,6 +26,7 @@ class DeleteBookViewModel
 constructor(
   private val application: Application,
   private val mediaScanTrigger: MediaScanTrigger,
+  private val repo: BookRepository,
 ) : BottomSheetItemViewModel {
 
   private val scope = MainScope()
@@ -33,6 +35,7 @@ constructor(
   internal val state: State<DeleteBookViewState?> get() = _state
 
   override suspend fun items(bookId: BookId): List<BottomSheetItem> {
+    // All books in overview are considered deletable
     return listOf(BottomSheetItem.DeleteBook)
   }
 

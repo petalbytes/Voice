@@ -13,15 +13,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.datastore.core.DataStore
+import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import voice.app.scanner.DeviceHasStoragePermissionBug
 import voice.app.scanner.MediaScanTrigger
 import voice.bookOverview.BookMigrationExplanationQualifier
 import voice.bookOverview.BookMigrationExplanationShown
 import voice.bookOverview.di.BookOverviewScope
+import voice.bookOverview.search.BookSearchViewModel
 import voice.bookOverview.search.BookSearchViewState
+import voice.bookOverview.search.DiscoverySearchState
 import voice.common.BookId
 import voice.common.comparator.sortedNaturally
 import voice.common.grid.GridCount
@@ -38,6 +43,7 @@ import voice.playback.PlayerController
 import voice.playback.playstate.PlayStateManager
 import voice.pref.Pref
 import voice.search.BookSearch
+import voice.search.repository.DiscoveryResult
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -62,13 +68,20 @@ constructor(
   private val search: BookSearch,
   private val contentRepo: BookContentRepo,
   private val deviceHasStoragePermissionBug: DeviceHasStoragePermissionBug,
+  private val bookSearchViewModelFactory: BookSearchViewModel.Factory
 ) {
 
   private val scope = MainScope()
   private var searchActive by mutableStateOf(false)
   private var query by mutableStateOf("")
-  private var searchBooks by mutableStateOf(emptyList<BookOverviewItemViewState>())
-  private var isSearching by mutableStateOf(false)
+  private var bookSearchViewModel: BookSearchViewModel? = null
+  private val _searchViewState = MutableStateFlow<BookSearchViewState>(
+    BookSearchViewState.EmptySearch(
+      suggestedAuthors = emptyList(),
+      recentQueries = emptyList(),
+      query = "",
+    )
+  )
 
   fun attach() {
     mediaScanner.scan()
@@ -110,7 +123,13 @@ constructor(
       }
     }
 
-    val bookSearchViewState = bookSearchViewState(layoutMode)
+    // Get search view state
+    val searchViewState = if (searchActive && bookSearchViewModel != null) {
+      remember { bookSearchViewModel!!.viewState }
+        .collectAsState().value
+    } else {
+      _searchViewState.collectAsState().value
+    }
 
     return BookOverviewViewState(
       layoutMode = layoutMode,
@@ -142,46 +161,9 @@ constructor(
       showSearchIcon = books.isNotEmpty(),
       isLoading = scannerActive,
       searchActive = searchActive,
-      searchViewState = bookSearchViewState,
+      searchViewState = searchViewState,
       showStoragePermissionBugCard = hasStoragePermissionBug,
     )
-  }
-
-  @Composable
-  private fun bookSearchViewState(layoutMode: BookOverviewLayoutMode): BookSearchViewState {
-    return if (searchActive) {
-      val recentBookSearch = remember {
-        recentBookSearchDao.recentBookSearches()
-      }.collectAsState(initial = emptyList()).value.reversed()
-      
-      val suggestedAuthors: List<String> by produceState(initialValue = emptyList()) {
-        value = contentRepo.all()
-          .filter { it.isActive }
-          .mapNotNull { it.author }
-          .toSet()
-          .sortedNaturally()
-      }
-
-      if (query.isNotBlank() && searchBooks.isNotEmpty()) {
-        BookSearchViewState.SearchResults(
-          query = query,
-          books = searchBooks,
-          layoutMode = layoutMode,
-        )
-      } else {
-        BookSearchViewState.EmptySearch(
-          recentQueries = recentBookSearch,
-          suggestedAuthors = suggestedAuthors,
-          query = query,
-        )
-      }
-    } else {
-      BookSearchViewState.EmptySearch(
-        recentQueries = emptyList(),
-        suggestedAuthors = emptyList(),
-        query = query,
-      )
-    }
   }
 
   fun onSettingsClick() {
@@ -203,43 +185,67 @@ constructor(
   fun onSearchActiveChange(active: Boolean) {
     if (active && !searchActive) {
       query = ""
-      searchBooks = emptyList()
+      
+      // Create a new BookSearchViewModel when search is activated
+      bookSearchViewModel = bookSearchViewModelFactory.create(
+        initialQuery = "",
+        layoutMode = if (gridCount.useGridAsDefault()) {
+          BookOverviewLayoutMode.Grid
+        } else {
+          BookOverviewLayoutMode.List
+        }
+      )
+      
+      // Listen to search view model changes
+      scope.launch {
+        bookSearchViewModel?.viewState?.collectLatest { state ->
+          _searchViewState.value = state
+        }
+      }
     }
     this.searchActive = active
   }
 
   fun onSearchQueryChange(query: String) {
     this.query = query
+    bookSearchViewModel?.let { viewModel ->
+      viewModel.updateQuery(query)
+    }
   }
   
   fun onSearchButtonClick() {
-    if (query.isBlank()) return
-    
-    isSearching = true
-    scope.launch {
-      try {
-        // Search local books
-        searchBooks = search.search(query).map { it.toItemViewState() }
-        
-        // Save to recent searches if we got results
-        if (searchBooks.isNotEmpty() && query.isNotBlank()) {
-          recentBookSearchDao.add(query.trim())
-        }
-      } finally {
-        isSearching = false
-      }
+    bookSearchViewModel?.let { viewModel ->
+      viewModel.executeSearch(query)
     }
   }
 
   fun onSearchBookClick(id: BookId) {
-    val query = query.trim()
     if (query.isNotBlank()) {
       scope.launch {
-        recentBookSearchDao.add(query)
+        recentBookSearchDao.add(query.trim())
       }
     }
     searchActive = false
     navigator.goTo(Destination.Playback(id))
+  }
+  
+  fun onDiscoveryResultClick(result: DiscoveryResult) {
+    // Navigate to the book details screen
+    navigator.goTo(
+      Destination.BookDetails(
+        id = result.id,
+        title = result.title,
+        authors = result.authors,
+        coverImageUrl = result.coverImageUrl,
+        categories = result.categories,
+        language = result.language,
+        mediaDetailsUrl = result.mediaDetailsUrl
+      )
+    )
+  }
+  
+  fun onRetryDiscoverySearch() {
+    bookSearchViewModel?.retryDiscoverySearch()
   }
 
   fun onBoomMigrationHelperConfirmClick() {

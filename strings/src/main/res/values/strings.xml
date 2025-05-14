@@ -128,4 +128,6 @@
         <item quantity="one">%d minute</item>
         <item quantity="other">%d minutes</item>
     </plurals>
+    <string name="download_for_offline">Download for offline listening</string>
+    <string name="manage_subscription">Manage subscription</string>
 </resources>

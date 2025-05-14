@@ -16,6 +16,15 @@ sealed interface NavigationCommand {
 sealed interface Destination {
   data class Playback(val bookId: BookId) : Destination
   data class Bookmarks(val bookId: BookId) : Destination
+  data class BookDetails(
+    val id: String,
+    val title: String,
+    val authors: List<String>,
+    val coverImageUrl: String,
+    val categories: List<String> = emptyList(),
+    val language: String = "",
+    val mediaDetailsUrl: String
+  ) : Destination
 
   @Serializable
   data class CoverFromInternet(val bookId: BookId) : Compose

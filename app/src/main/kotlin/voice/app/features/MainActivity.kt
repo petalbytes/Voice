@@ -21,6 +21,7 @@ import voice.app.features.bookOverview.EditCoverDialogController
 import voice.app.injection.appComponent
 import voice.app.misc.conductor.asVerticalChangeHandlerTransaction
 import voice.bookmark.BookmarkController
+import voice.bookOverview.details.BookDetailsController
 import voice.common.BookId
 import voice.common.navigation.Destination
 import voice.common.navigation.NavigationCommand
@@ -31,6 +32,7 @@ import voice.playback.PlayerController
 import voice.playback.session.search.BookSearchHandler
 import voice.playback.session.search.BookSearchParser
 import voice.playbackScreen.BookPlayController
+import voice.search.repository.DiscoveryResult
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
@@ -107,6 +109,29 @@ class MainActivity : AppCompatActivity() {
               }
               is Destination.Activity -> {
                 startActivity(destination.intent)
+              }
+              is Destination.BookDetails -> {
+                // Create discovery result directly from the destination data
+                val discoveryResult = DiscoveryResult(
+                  id = destination.id,
+                  title = destination.title,
+                  authors = destination.authors,
+                  coverImageUrl = destination.coverImageUrl,
+                  categories = destination.categories,
+                  language = destination.language,
+                  mediaDetailsUrl = destination.mediaDetailsUrl
+                )
+
+                // Extract the media details ID from the URL
+                val mediaDetailsId = destination.mediaDetailsUrl.substringAfter("id=", "")
+                
+                // Create and push the controller
+                val controller = BookDetailsController(
+                  discoveryResult = discoveryResult,
+                  mediaDetailsId = mediaDetailsId
+                )
+                
+                router.pushController(controller.asVerticalChangeHandlerTransaction())
               }
             }
           }

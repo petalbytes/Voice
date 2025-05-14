@@ -8,17 +8,22 @@ import voice.bookOverview.di.BookOverviewScope
 import voice.common.BookId
 import voice.common.navigation.Destination
 import voice.common.navigation.Navigator
+import voice.data.repo.BookRepository
 import javax.inject.Inject
 
 @BookOverviewScope
 @ContributesMultibinding(BookOverviewScope::class, boundType = BottomSheetItemViewModel::class)
 class FileCoverViewModel
 @Inject
-constructor(private val navigator: Navigator) : BottomSheetItemViewModel {
+constructor(
+  private val navigator: Navigator,
+  private val repo: BookRepository
+) : BottomSheetItemViewModel {
 
   private var bookId: BookId? = null
 
   override suspend fun items(bookId: BookId): List<BottomSheetItem> {
+    // All books in overview can have file covers
     return listOf(BottomSheetItem.FileCover)
   }
 

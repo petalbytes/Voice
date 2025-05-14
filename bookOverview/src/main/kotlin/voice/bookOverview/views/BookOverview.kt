@@ -45,6 +45,7 @@ import voice.common.compose.PlayButton
 import voice.common.compose.VoiceTheme
 import voice.common.compose.rememberScoped
 import voice.common.rootComponentAs
+import voice.search.repository.DiscoveryResult
 import java.util.UUID
 
 @Composable
@@ -105,6 +106,8 @@ fun BookOverviewScreen(modifier: Modifier = Modifier) {
     onSearchBookClick = bookOverviewViewModel::onSearchBookClick,
     onPermissionBugCardClick = bookOverviewViewModel::onPermissionBugCardClick,
     onSearchButtonClick = bookOverviewViewModel::onSearchButtonClick,
+    onDiscoveryResultClick = bookOverviewViewModel::onDiscoveryResultClick,
+    onRetryDiscoverySearch = bookOverviewViewModel::onRetryDiscoverySearch,
   )
   val deleteBookViewState = deleteBookViewModel.state.value
   if (deleteBookViewState != null) {
@@ -126,29 +129,29 @@ fun BookOverviewScreen(modifier: Modifier = Modifier) {
   }
 
   if (showBottomSheet) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val bottomSheetState = rememberModalBottomSheetState()
+    val bottomSheetViewState = bottomSheetViewModel.state.value
     ModalBottomSheet(
-      modifier = modifier,
-      sheetState = sheetState,
-      content = {
-        BottomSheetContent(
-          state = bottomSheetViewModel.state.value,
-          onItemClick = { item ->
-            if (item == BottomSheetItem.FileCover) {
-              getContentLauncher.launch("image/*")
-            }
-            scope.launch {
-              sheetState.hide()
-              bottomSheetViewModel.onItemClick(item)
-              showBottomSheet = false
-            }
-          },
-        )
-      },
       onDismissRequest = {
         showBottomSheet = false
       },
-    )
+      sheetState = bottomSheetState,
+    ) {
+      BottomSheetContent(
+        state = bottomSheetViewState,
+        onItemClick = { item ->
+          scope.launch {
+            bottomSheetState.hide()
+          }.invokeOnCompletion {
+            if (!bottomSheetState.isVisible) {
+              showBottomSheet = false
+              // Process the item click through the ViewModel
+              bottomSheetViewModel.onItemClick(item)
+            }
+          }
+        },
+      )
+    }
   }
 }
 
@@ -165,13 +168,14 @@ internal fun BookOverview(
   onSearchActiveChange: (Boolean) -> Unit,
   onSearchQueryChange: (String) -> Unit,
   onSearchBookClick: (BookId) -> Unit,
-  onPermissionBugCardClick: () -> Unit,
   onSearchButtonClick: () -> Unit,
-  modifier: Modifier = Modifier,
+  onDiscoveryResultClick: (DiscoveryResult) -> Unit = {},
+  onRetryDiscoverySearch: () -> Unit = {},
+  onPermissionBugCardClick: () -> Unit,
 ) {
   val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
   Scaffold(
-    modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+    modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
     topBar = {
       BookOverviewTopBar(
         viewState = viewState,
@@ -183,6 +187,8 @@ internal fun BookOverview(
         onQueryChange = onSearchQueryChange,
         onSearchBookClick = onSearchBookClick,
         onSearchButtonClick = onSearchButtonClick,
+        onDiscoveryResultClick = onDiscoveryResultClick,
+        onRetryDiscoverySearch = onRetryDiscoverySearch,
       )
     },
     floatingActionButton = {

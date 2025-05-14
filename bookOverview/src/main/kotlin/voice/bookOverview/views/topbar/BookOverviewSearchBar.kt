@@ -27,6 +27,7 @@ import voice.bookOverview.views.BookFolderIcon
 import voice.bookOverview.views.MigrateIcon
 import voice.bookOverview.views.SettingsIcon
 import voice.common.BookId
+import voice.search.repository.DiscoveryResult
 import voice.strings.R
 
 @Composable
@@ -40,6 +41,8 @@ internal fun ColumnScope.BookOverviewSearchBar(
   onSettingsClick: () -> Unit,
   onSearchBookClick: (BookId) -> Unit,
   onSearchButtonClick: () -> Unit,
+  onDiscoveryResultClick: (DiscoveryResult) -> Unit = {},
+  onRetryDiscoverySearch: () -> Unit = {},
   searchActive: Boolean,
   showMigrateIcon: Boolean,
   showMigrateHint: Boolean,
@@ -120,6 +123,8 @@ internal fun ColumnScope.BookOverviewSearchBar(
         contentPadding = PaddingValues(),
         onQueryChange = onQueryChange,
         onBookClick = onSearchBookClick,
+        onDiscoveryResultClick = onDiscoveryResultClick,
+        onRetryDiscoverySearch = onRetryDiscoverySearch,
       )
     },
   )

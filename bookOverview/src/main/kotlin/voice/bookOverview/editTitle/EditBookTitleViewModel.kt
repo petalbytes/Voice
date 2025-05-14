@@ -27,6 +27,7 @@ constructor(private val repo: BookRepository) : BottomSheetItemViewModel {
   internal val state: State<EditBookTitleState?> get() = _state
 
   override suspend fun items(bookId: BookId): List<BottomSheetItem> {
+    // All books in overview are editable
     return listOf(BottomSheetItem.Title)
   }
 
@@ -36,6 +37,7 @@ constructor(private val repo: BookRepository) : BottomSheetItemViewModel {
   ) {
     if (item != BottomSheetItem.Title) return
     val book = repo.get(bookId) ?: return
+    
     _state.value = EditBookTitleState(
       title = book.content.name,
       bookId = bookId,
