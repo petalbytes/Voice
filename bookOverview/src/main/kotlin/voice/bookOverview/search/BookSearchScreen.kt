@@ -1,6 +1,7 @@
 package voice.bookOverview.search
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -197,15 +198,35 @@ internal fun BookSearchContent(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
               )
             } else {
-              LazyColumn(
-                contentPadding = PaddingValues(vertical = 8.dp),
-                modifier = Modifier.padding(horizontal = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-              ) {
-                items(discoveryState.results) { result ->
-                  DiscoveryResultRow(
-                    result = result,
-                    onClick = { onDiscoveryResultClick(result) }
+              when (viewState.layoutMode) {
+                BookOverviewLayoutMode.List -> {
+                  LazyColumn(
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                  ) {
+                    items(discoveryState.results) { result ->
+                      DiscoveryResultRow(
+                        result = result,
+                        onClick = { onDiscoveryResultClick(result) }
+                      )
+                    }
+                  }
+                }
+                BookOverviewLayoutMode.Grid -> {
+                  LazyVerticalGrid(
+                    columns = GridCells.Fixed(gridColumnCount()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
+                    content = {
+                      items(discoveryState.results) { result ->
+                        DiscoveryResultGridItem(
+                          result = result,
+                          onClick = { onDiscoveryResultClick(result) }
+                        )
+                      }
+                    }
                   )
                 }
               }
@@ -288,6 +309,43 @@ private fun DiscoveryResultRow(
           )
         }
       }
+    }
+  }
+}
+
+@Composable
+private fun DiscoveryResultGridItem(
+  result: DiscoveryResult,
+  onClick: () -> Unit
+) {
+  Card(
+    modifier = Modifier
+      .fillMaxWidth()
+      .clickable(onClick = onClick),
+  ) {
+    Column {
+      AsyncImage(
+        modifier = Modifier
+          .aspectRatio(4F / 3F)
+          .padding(start = 8.dp, end = 8.dp, top = 8.dp)
+          .clip(RoundedCornerShape(8.dp)),
+        contentScale = ContentScale.Crop,
+        model = result.coverImageUrl,
+        placeholder = painterResource(id = voice.common.R.drawable.album_art),
+        error = painterResource(id = voice.common.R.drawable.album_art),
+        contentDescription = null,
+      )
+      Text(
+        modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
+        text = result.title,
+        maxLines = 3,
+        style = MaterialTheme.typography.bodyMedium,
+      )
+      Text(
+        modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+        text = result.authors.firstOrNull() ?: "",
+        style = MaterialTheme.typography.bodySmall,
+      )
     }
   }
 }

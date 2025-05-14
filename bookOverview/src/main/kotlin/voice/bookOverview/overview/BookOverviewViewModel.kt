@@ -186,14 +186,18 @@ constructor(
     if (active && !searchActive) {
       query = ""
       
+      // Get the current layout mode from the same logic used in state()
+      val layoutMode = when {
+        gridModePref.value == GridMode.LIST -> BookOverviewLayoutMode.List
+        gridModePref.value == GridMode.GRID -> BookOverviewLayoutMode.Grid
+        gridModePref.value == GridMode.FOLLOW_DEVICE && gridCount.useGridAsDefault() -> BookOverviewLayoutMode.Grid
+        else -> BookOverviewLayoutMode.List
+      }
+      
       // Create a new BookSearchViewModel when search is activated
       bookSearchViewModel = bookSearchViewModelFactory.create(
         initialQuery = "",
-        layoutMode = if (gridCount.useGridAsDefault()) {
-          BookOverviewLayoutMode.Grid
-        } else {
-          BookOverviewLayoutMode.List
-        }
+        layoutMode = layoutMode
       )
       
       // Listen to search view model changes
