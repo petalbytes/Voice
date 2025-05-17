@@ -30,6 +30,7 @@ import voice.pref.Pref
 import voice.pref.boolean
 import voice.pref.enum
 import voice.pref.int
+import voice.pref.string
 import voice.pref.stringSet
 import javax.inject.Named
 import javax.inject.Singleton
@@ -97,6 +98,13 @@ object PrefsModule {
   @Named(PrefKeys.GRID_MODE)
   fun gridViewPref(prefs: AndroidPreferences): Pref<GridMode> {
     return prefs.enum(PrefKeys.GRID_MODE, GridMode.FOLLOW_DEVICE)
+  }
+
+  @Provides
+  @Singleton
+  @Named(PrefKeys.PLUGIN_BASE_URL)
+  fun pluginBaseUrlPref(prefs: AndroidPreferences): Pref<String> {
+    return prefs.string(PrefKeys.PLUGIN_BASE_URL, "http://10.0.2.2:8080/")
   }
 
   @Provides

@@ -37,6 +37,8 @@ import voice.settings.SettingsListener
 import voice.settings.SettingsViewModel
 import voice.settings.SettingsViewState
 import voice.strings.R as StringsR
+import voice.settings.views.PluginBaseUrlRow
+import voice.settings.views.PluginBaseUrlDialog
 
 @Composable
 @Preview
@@ -49,6 +51,7 @@ private fun SettingsPreview() {
     dialog = null,
     appVersion = "1.2.3",
     useGrid = true,
+    pluginBaseUrl = "http://10.0.2.2:8080/",
   )
   VoiceTheme {
     Settings(
@@ -66,6 +69,8 @@ private fun SettingsPreview() {
         override fun suggestIdea() {}
         override fun openBugReport() {}
         override fun toggleGrid() {}
+        override fun onPluginBaseUrlRowClick() {}
+        override fun pluginBaseUrlChanged(url: String) {}
       },
     )
   }
@@ -156,6 +161,9 @@ private fun Settings(
           leadingContent = { Icon(Icons.Outlined.Language, stringResource(StringsR.string.pref_help_translating)) },
           headlineContent = { Text(stringResource(StringsR.string.pref_help_translating)) },
         )
+        PluginBaseUrlRow(viewState.pluginBaseUrl) {
+          listener.onPluginBaseUrlRowClick()
+        }
         AppVersion(appVersion = viewState.appVersion)
         Dialog(viewState, listener)
       }
@@ -193,6 +201,13 @@ private fun Dialog(
       SeekAmountDialog(
         currentSeconds = viewState.seekTimeInSeconds,
         onSecondsConfirm = listener::seekAmountChanged,
+        onDismiss = listener::dismissDialog,
+      )
+    }
+    SettingsViewState.Dialog.PluginBaseUrl -> {
+      PluginBaseUrlDialog(
+        currentUrl = viewState.pluginBaseUrl,
+        onUrlConfirm = listener::pluginBaseUrlChanged,
         onDismiss = listener::dismissDialog,
       )
     }

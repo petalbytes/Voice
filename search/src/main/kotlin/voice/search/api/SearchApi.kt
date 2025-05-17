@@ -52,5 +52,7 @@ data class AudioSourceResponse(
   val description: String,
   @SerialName("file_size")
   val fileSize: String,
-  val m3u: String? = null
+  val m3u: String? = null,
+  @SerialName("download_url")
+  val downloadUrl: String? = null
 ) 

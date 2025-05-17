@@ -13,4 +13,6 @@ interface SettingsListener {
   fun suggestIdea()
   fun openBugReport()
   fun openTranslations()
+  fun onPluginBaseUrlRowClick()
+  fun pluginBaseUrlChanged(url: String)
 }

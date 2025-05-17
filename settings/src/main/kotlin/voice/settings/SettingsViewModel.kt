@@ -31,6 +31,8 @@ class SettingsViewModel
   @Named(PrefKeys.GRID_MODE)
   private val gridModePref: Pref<GridMode>,
   private val gridCount: GridCount,
+  @Named(PrefKeys.PLUGIN_BASE_URL)
+  private val pluginBaseUrlPref: Pref<String>,
 ) : SettingsListener {
 
   private val dialog = mutableStateOf<SettingsViewState.Dialog?>(null)
@@ -41,6 +43,7 @@ class SettingsViewModel
     val autoRewindAmount by remember { autoRewindAmountPref.flow }.collectAsState(initial = 0)
     val seekTime by remember { seekTimePref.flow }.collectAsState(initial = 0)
     val gridMode by remember { gridModePref.flow }.collectAsState(initial = GridMode.GRID)
+    val pluginBaseUrl by remember { pluginBaseUrlPref.flow }.collectAsState(initial = "http://10.0.2.2:8080/")
     return SettingsViewState(
       useDarkTheme = useDarkTheme,
       showDarkThemePref = DARK_THEME_SETTABLE,
@@ -53,6 +56,7 @@ class SettingsViewModel
         GridMode.GRID -> true
         GridMode.FOLLOW_DEVICE -> gridCount.useGridAsDefault()
       },
+      pluginBaseUrl = pluginBaseUrl,
     )
   }
 
@@ -118,5 +122,13 @@ class SettingsViewModel
   override fun openTranslations() {
     dismissDialog()
     navigator.goTo(Destination.Website("https://hosted.weblate.org/engage/voice/"))
+  }
+
+  override fun onPluginBaseUrlRowClick() {
+    dialog.value = SettingsViewState.Dialog.PluginBaseUrl
+  }
+
+  override fun pluginBaseUrlChanged(url: String) {
+    pluginBaseUrlPref.value = url
   }
 }
