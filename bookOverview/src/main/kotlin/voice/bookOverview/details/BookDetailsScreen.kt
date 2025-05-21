@@ -16,6 +16,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -56,7 +59,9 @@ fun BookDetailsScreen(
     viewState = viewState,
     onBackClick = onBackClick,
     onRetry = { viewModel.loadBookDetails() },
-    onImportBook = onImportBook
+    onImportBook = onImportBook,
+    onBorrowBook = { borrowLink -> viewModel.borrowBook(borrowLink) },
+    onCancelBorrow = { viewModel.cancelBorrowBook() }
   )
 }
 
@@ -66,7 +71,9 @@ private fun BookDetailsContent(
   viewState: BookDetailsViewState,
   onBackClick: () -> Unit,
   onRetry: () -> Unit,
-  onImportBook: (DiscoveryResult, AudioSource) -> Unit
+  onImportBook: (DiscoveryResult, AudioSource) -> Unit,
+  onBorrowBook: (String) -> Unit,
+  onCancelBorrow: () -> Unit
 ) {
   Scaffold(
     topBar = {
@@ -109,7 +116,7 @@ private fun BookDetailsContent(
                 description = viewState.details.description
               )
             }
-            
+
             item {
               Spacer(modifier = Modifier.height(24.dp))
               Text(
@@ -118,11 +125,14 @@ private fun BookDetailsContent(
               )
               Spacer(modifier = Modifier.height(8.dp))
             }
-            
+
             items(viewState.details.availableSources) { source ->
               AudioSourceItem(
                 source = source,
-                onImportClick = { onImportBook(viewState.discoveryResult, source) }
+                onImportClick = { onImportBook(viewState.discoveryResult, source) },
+                onBorrowClick = { source.borrowLink?.let(onBorrowBook) },
+                onCancelBorrow = onCancelBorrow,
+                borrowProgress = viewState.borrowProgress
               )
               Spacer(modifier = Modifier.height(8.dp))
             }
@@ -140,9 +150,9 @@ private fun BookDetailsContent(
               text = "Error loading book details",
               style = MaterialTheme.typography.titleMedium
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
               text = when (val error = viewState.error) {
                 is SearchError.NetworkError -> "Network error: ${error.message}"
@@ -152,9 +162,9 @@ private fun BookDetailsContent(
               },
               style = MaterialTheme.typography.bodyMedium
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Button(onClick = onRetry) {
               Text("Retry")
             }
@@ -187,9 +197,9 @@ private fun BookInfoHeader(
         fallback = painterResource(id = voice.common.R.drawable.album_art),
         error = painterResource(id = voice.common.R.drawable.album_art)
       )
-      
+
       Spacer(modifier = Modifier.width(16.dp))
-      
+
       // Book info
       Column {
         Text(
@@ -197,14 +207,14 @@ private fun BookInfoHeader(
           style = MaterialTheme.typography.headlineSmall,
           fontWeight = FontWeight.Bold
         )
-        
+
         Spacer(modifier = Modifier.height(4.dp))
-        
+
         Text(
           text = "By ${discoveryResult.authors.joinToString(", ")}",
           style = MaterialTheme.typography.bodyLarge
         )
-        
+
         if (discoveryResult.categories.isNotEmpty()) {
           Spacer(modifier = Modifier.height(8.dp))
           Text(
@@ -213,28 +223,28 @@ private fun BookInfoHeader(
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
           text = discoveryResult.language,
           style = MaterialTheme.typography.bodySmall
         )
       }
     }
-    
+
     Spacer(modifier = Modifier.height(16.dp))
     Divider()
     Spacer(modifier = Modifier.height(16.dp))
-    
+
     // Description
     Text(
       text = "Description",
       style = MaterialTheme.typography.titleLarge
     )
-    
+
     Spacer(modifier = Modifier.height(8.dp))
-    
+
     Text(
       text = description.ifEmpty { "No description available" },
       style = MaterialTheme.typography.bodyMedium
@@ -245,7 +255,10 @@ private fun BookInfoHeader(
 @Composable
 private fun AudioSourceItem(
   source: AudioSource,
-  onImportClick: () -> Unit
+  onImportClick: () -> Unit,
+  onBorrowClick: () -> Unit,
+  onCancelBorrow: () -> Unit,
+  borrowProgress: BorrowProgress? = null
 ) {
   Card(
     modifier = Modifier.fillMaxWidth()
@@ -263,29 +276,107 @@ private fun AudioSourceItem(
             text = "Read by: ${source.readBy}",
             style = MaterialTheme.typography.titleMedium
           )
-          
+
           Spacer(modifier = Modifier.height(4.dp))
-          
-          Text(
-            text = source.description,
-            style = MaterialTheme.typography.bodyMedium
-          )
-          
-          Spacer(modifier = Modifier.height(4.dp))
-          
+
           Text(
             text = "File size: ${source.fileSize}",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
         }
-        
+
         Spacer(modifier = Modifier.width(16.dp))
-        
-        Button(onClick = onImportClick) {
-          Text("Import")
+
+        Row(
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          if (source.borrowLink != null) {
+            // Show button in disabled (greyed out) state during active download/extraction
+            val isDownloadInProgress = borrowProgress is BorrowProgress.Starting || 
+                                       borrowProgress is BorrowProgress.Downloading || 
+                                       borrowProgress is BorrowProgress.Extracting
+            
+            Button(
+              onClick = onBorrowClick,
+              enabled = borrowProgress == null || borrowProgress is BorrowProgress.Error
+            ) {
+              Text("Borrow")
+            }
+
+            when (val progress = borrowProgress) {
+              is BorrowProgress.Starting -> {
+                // Show indeterminate progress indicator for Starting state
+                CircularProgressIndicator(
+                  modifier = Modifier.size(24.dp)
+                )
+              }
+              is BorrowProgress.Downloading -> {
+                Box(
+                  contentAlignment = Alignment.Center
+                ) {
+                  CircularProgressIndicator(
+                    progress = progress.progress / 100f,
+                    modifier = Modifier.size(24.dp)
+                  )
+                  
+                  // X button to cancel download
+                  IconButton(
+                    onClick = onCancelBorrow,
+                    modifier = Modifier.size(24.dp)
+                  ) {
+                    Icon(
+                      imageVector = Icons.Default.Close,
+                      contentDescription = "Cancel download",
+                      modifier = Modifier.size(16.dp)
+                    )
+                  }
+                }
+              }
+              is BorrowProgress.Extracting -> {
+                Box(
+                  contentAlignment = Alignment.Center
+                ) {
+                  CircularProgressIndicator(
+                    progress = progress.progress / 100f,
+                    modifier = Modifier.size(24.dp)
+                  )
+                  
+                  // X button to cancel extraction
+                  IconButton(
+                    onClick = onCancelBorrow,
+                    modifier = Modifier.size(24.dp)
+                  ) {
+                    Icon(
+                      imageVector = Icons.Default.Close,
+                      contentDescription = "Cancel extraction",
+                      modifier = Modifier.size(16.dp)
+                    )
+                  }
+                }
+              }
+              is BorrowProgress.Completed -> {
+                Icon(
+                  imageVector = Icons.Default.CheckCircle,
+                  contentDescription = "Download completed",
+                  tint = MaterialTheme.colorScheme.primary,
+                  modifier = Modifier.size(24.dp)
+                )
+              }
+              is BorrowProgress.Error -> {
+                Icon(
+                  imageVector = Icons.Default.Error,
+                  contentDescription = "Download error",
+                  tint = MaterialTheme.colorScheme.error,
+                  modifier = Modifier.size(24.dp)
+                )
+              }
+              null -> { /* No progress indicator shown */ }
+            }
+          }
         }
       }
     }
   }
-} 
+}

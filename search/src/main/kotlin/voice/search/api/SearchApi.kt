@@ -12,7 +12,7 @@ import retrofit2.http.Query
 interface SearchApi {
   @GET("search")
   suspend fun search(@Query("q") query: String): Response<List<DiscoverySearchResponse>>
-  
+
   @GET("details")
   suspend fun getDetails(@Query("id") id: String): Response<BookDetailsResponse>
 }
@@ -49,10 +49,13 @@ data class BookDetailsResponse(
 data class AudioSourceResponse(
   @SerialName("read_by")
   val readBy: String,
-  val description: String,
   @SerialName("file_size")
   val fileSize: String,
   val m3u: String? = null,
-  @SerialName("download_url")
-  val downloadUrl: String? = null
-) 
+  @SerialName("borrow_link")
+  val borrowLink: String? = null
+) {
+  override fun toString(): String {
+    return "AudioSourceResponse(readBy=$readBy, fileSize=$fileSize, m3u=$m3u, borrowLink=$borrowLink)"
+  }
+}

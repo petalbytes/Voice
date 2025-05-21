@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.ViewList
 import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Lightbulb
@@ -52,6 +53,7 @@ private fun SettingsPreview() {
     appVersion = "1.2.3",
     useGrid = true,
     pluginBaseUrl = "http://10.0.2.2:8080/",
+    borrowLocation = "",
   )
   VoiceTheme {
     Settings(
@@ -71,6 +73,8 @@ private fun SettingsPreview() {
         override fun toggleGrid() {}
         override fun onPluginBaseUrlRowClick() {}
         override fun pluginBaseUrlChanged(url: String) {}
+        override fun onBorrowLocationClick() {}
+        override fun borrowLocationChanged(location: String) {}
       },
     )
   }
@@ -141,6 +145,9 @@ private fun Settings(
         AutoRewindRow(viewState.autoRewindInSeconds) {
           listener.onAutoRewindRowClick()
         }
+        BorrowLocationRow(viewState.borrowLocation) {
+          listener.onBorrowLocationClick()
+        }
         ListItem(
           modifier = Modifier.clickable { listener.suggestIdea() },
           leadingContent = { Icon(Icons.Outlined.Lightbulb, stringResource(StringsR.string.pref_suggest_idea)) },
@@ -169,6 +176,30 @@ private fun Settings(
       }
     }
   }
+}
+
+@Composable
+private fun BorrowLocationRow(
+  borrowLocation: String,
+  onClick: () -> Unit,
+) {
+  ListItem(
+    modifier = Modifier.clickable { onClick() },
+    leadingContent = {
+      Icon(
+        imageVector = Icons.Outlined.Folder,
+        contentDescription = stringResource(StringsR.string.pref_borrow_location),
+      )
+    },
+    headlineContent = { Text(stringResource(StringsR.string.pref_borrow_location)) },
+    supportingContent = {
+      if (borrowLocation.isNotEmpty()) {
+        Text(borrowLocation)
+      } else {
+        Text(stringResource(StringsR.string.pref_borrow_location_not_set))
+      }
+    },
+  )
 }
 
 @ContributesTo(AppScope::class)
@@ -208,6 +239,13 @@ private fun Dialog(
       PluginBaseUrlDialog(
         currentUrl = viewState.pluginBaseUrl,
         onUrlConfirm = listener::pluginBaseUrlChanged,
+        onDismiss = listener::dismissDialog,
+      )
+    }
+    SettingsViewState.Dialog.BorrowLocation -> {
+      BorrowLocationDialog(
+        currentLocation = viewState.borrowLocation,
+        onLocationConfirm = listener::borrowLocationChanged,
         onDismiss = listener::dismissDialog,
       )
     }

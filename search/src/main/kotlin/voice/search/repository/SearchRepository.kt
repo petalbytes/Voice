@@ -43,7 +43,18 @@ class SearchRepository @Inject constructor(
     try {
       val response = api.getDetails(bookId)
       if (response.isSuccessful) {
-        val details = response.body()?.let { BookDetails.fromResponse(it) }
+        val responseBody = response.body()
+
+        // Log the entire response to check for borrow_link
+        android.util.Log.d("SearchRepository", "Book details response: $responseBody")
+        if (responseBody != null) {
+          // Log available sources to specifically check for borrow_link
+          responseBody.availableSources.forEachIndexed { index, source ->
+            android.util.Log.d("SearchRepository", "Source $index - borrow_link: ${source.borrowLink}")
+          }
+        }
+
+        val details = responseBody?.let { BookDetails.fromResponse(it) }
         if (details != null) {
           emit(Result.success(details))
         } else {
@@ -58,7 +69,7 @@ class SearchRepository @Inject constructor(
       emit(Result.failure(SearchError.UnknownError("An unexpected error occurred", e)))
     }
   }
-  
+
   private fun createApiError(code: Int, message: String?): SearchError.ApiError {
     return SearchError.ApiError(
       code = code,
@@ -123,18 +134,18 @@ data class BookDetails(
 
 data class AudioSource(
   val readBy: String,
-  val description: String,
   val fileSize: String,
-  val m3u: String?
+  val m3u: String?,
+  val borrowLink: String?
 ) {
   companion object {
     fun fromResponse(response: voice.search.api.AudioSourceResponse): AudioSource {
       return AudioSource(
         readBy = response.readBy,
-        description = response.description,
         fileSize = response.fileSize,
-        m3u = response.m3u
+        m3u = response.m3u,
+        borrowLink = response.borrowLink
       )
     }
   }
-} 
+}

@@ -12,6 +12,7 @@ object PrefKeys {
   const val DARK_THEME = "darkTheme"
   const val GRID_MODE = "gridView"
   const val PLUGIN_BASE_URL = "pluginBaseUrl"
+  const val BORROW_LOCATION = "borrowLocation"
 }
 
 @Qualifier
@@ -31,3 +32,6 @@ annotation class AuthorAudiobookFolders
 
 @Qualifier
 annotation class CurrentBook
+
+@Qualifier
+annotation class BorrowLocation

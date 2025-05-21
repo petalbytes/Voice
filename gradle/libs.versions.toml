@@ -2,6 +2,7 @@
 leakcanary = "2.14"
 versionCode = "3603039"
 versionName = "8.3.2"
+junrar = "7.5.5"
 
 sdk-compile = "35"
 sdk-min = "28"
@@ -47,6 +48,7 @@ turbine = "app.cash.turbine:turbine:1.2.0"
 molecule = "app.cash.molecule:molecule-runtime:2.1.0"
 immutable = "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.8"
 okhttp = "com.squareup.okhttp3:okhttp:4.12.0"
+okhttp-mockwebserver = "com.squareup.okhttp3:mockwebserver:4.12.0"
 review = "com.google.android.play:review-ktx:2.0.1"
 lottie = "com.airbnb.android:lottie-compose:6.6.6"
 clikt = "com.github.ajalt.clikt:clikt:5.0.3"
@@ -107,6 +109,8 @@ compose-typedNavigation = "com.kiwi.navigation-compose.typed:core:0.10.0"
 ktlint-core = { module = "com.pinterest.ktlint:ktlint-cli", version.ref = "ktlint-core" }
 ktlint-gradlePlugin = { module = "io.github.usefulness:ktlint-gradle-plugin", version.ref = "ktlint-gradlePlugin" }
 ktlint-compose = "io.nlopez.compose.rules:ktlint:0.4.22"
+
+junrar = { module = "com.github.junrar:junrar", version.ref = "junrar" }
 
 [bundles]
 compose = [

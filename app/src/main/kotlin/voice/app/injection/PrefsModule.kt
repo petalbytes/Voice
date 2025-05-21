@@ -3,6 +3,7 @@ package voice.app.injection
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
+import android.os.Environment
 import androidx.datastore.core.DataStore
 import com.squareup.anvil.annotations.ContributesTo
 import dagger.Module
@@ -17,6 +18,7 @@ import voice.common.AppScope
 import voice.common.BookId
 import voice.common.grid.GridMode
 import voice.common.pref.AuthorAudiobookFolders
+import voice.common.pref.BorrowLocation
 import voice.common.pref.CurrentBook
 import voice.common.pref.OnboardingCompleted
 import voice.common.pref.PrefKeys
@@ -158,6 +160,13 @@ object PrefsModule {
   @BookMigrationExplanationQualifier
   fun bookMigrationExplanationShown(factory: VoiceDataStoreFactory): BookMigrationExplanationShown {
     return factory.create(Boolean.serializer(), false, "bookMigrationExplanationShown2")
+  }
+
+  @Provides
+  @Singleton
+  @BorrowLocation
+  fun provideBorrowLocation(context: Context, prefs: AndroidPreferences): Pref<String> {
+  @Provides
   }
 }
 

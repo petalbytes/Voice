@@ -9,11 +9,13 @@ data class SettingsViewState(
   val dialog: Dialog?,
   val useGrid: Boolean,
   val pluginBaseUrl: String,
+  val borrowLocation: String,
 ) {
 
   enum class Dialog {
     AutoRewindAmount,
     SeekTime,
     PluginBaseUrl,
+    BorrowLocation,
   }
 }

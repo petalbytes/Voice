@@ -17,6 +17,7 @@ dependencies {
   implementation(projects.sleepTimer)
   implementation(projects.scanner)
   implementation(projects.pref)
+  implementation(projects.localBorrow)
 
   implementation(libs.lifecycle)
   implementation(libs.documentFile)

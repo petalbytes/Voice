@@ -13,6 +13,7 @@ import voice.common.grid.GridCount
 import voice.common.grid.GridMode
 import voice.common.navigation.Destination
 import voice.common.navigation.Navigator
+import voice.common.pref.BorrowLocation
 import voice.common.pref.PrefKeys
 import voice.pref.Pref
 import javax.inject.Inject
@@ -33,6 +34,8 @@ class SettingsViewModel
   private val gridCount: GridCount,
   @Named(PrefKeys.PLUGIN_BASE_URL)
   private val pluginBaseUrlPref: Pref<String>,
+  @BorrowLocation
+  private val borrowLocationPref: Pref<String>,
 ) : SettingsListener {
 
   private val dialog = mutableStateOf<SettingsViewState.Dialog?>(null)
@@ -44,6 +47,7 @@ class SettingsViewModel
     val seekTime by remember { seekTimePref.flow }.collectAsState(initial = 0)
     val gridMode by remember { gridModePref.flow }.collectAsState(initial = GridMode.GRID)
     val pluginBaseUrl by remember { pluginBaseUrlPref.flow }.collectAsState(initial = "http://10.0.2.2:8080/")
+    val borrowLocation by remember { borrowLocationPref.flow }.collectAsState(initial = "")
     return SettingsViewState(
       useDarkTheme = useDarkTheme,
       showDarkThemePref = DARK_THEME_SETTABLE,
@@ -57,6 +61,7 @@ class SettingsViewModel
         GridMode.FOLLOW_DEVICE -> gridCount.useGridAsDefault()
       },
       pluginBaseUrl = pluginBaseUrl,
+      borrowLocation = borrowLocation,
     )
   }
 
@@ -130,5 +135,13 @@ class SettingsViewModel
 
   override fun pluginBaseUrlChanged(url: String) {
     pluginBaseUrlPref.value = url
+  }
+
+  override fun onBorrowLocationClick() {
+    dialog.value = SettingsViewState.Dialog.BorrowLocation
+  }
+
+  override fun borrowLocationChanged(location: String) {
+    borrowLocationPref.value = location
   }
 }

@@ -173,6 +173,7 @@ dependencies {
   implementation(projects.documentfile)
   implementation(projects.onboarding)
   implementation(projects.bookmark)
+  implementation(projects.localBorrow)
 
   implementation(libs.appCompat)
   implementation(libs.material)

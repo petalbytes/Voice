@@ -15,4 +15,6 @@ interface SettingsListener {
   fun openTranslations()
   fun onPluginBaseUrlRowClick()
   fun pluginBaseUrlChanged(url: String)
+  fun onBorrowLocationClick()
+  fun borrowLocationChanged(location: String)
 }
