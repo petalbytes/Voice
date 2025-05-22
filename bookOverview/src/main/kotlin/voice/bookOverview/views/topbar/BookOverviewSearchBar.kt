@@ -29,6 +29,7 @@ import voice.bookOverview.views.SettingsIcon
 import voice.common.BookId
 import voice.search.repository.DiscoveryResult
 import voice.strings.R
+import androidx.compose.ui.platform.LocalFocusManager
 
 @Composable
 internal fun ColumnScope.BookOverviewSearchBar(
@@ -52,6 +53,7 @@ internal fun ColumnScope.BookOverviewSearchBar(
   SearchBar(
     inputField = {
       Row(modifier = Modifier.fillMaxWidth()) {
+        val focusManager = LocalFocusManager.current
         SearchBarDefaults.InputField(
           query = if (searchActive) {
             searchViewState.query
@@ -59,7 +61,12 @@ internal fun ColumnScope.BookOverviewSearchBar(
             ""
           },
           onQueryChange = onQueryChange,
-          onSearch = { onSearchButtonClick() },
+          onSearch = { 
+            // Hide keyboard 
+            focusManager.clearFocus()
+            // Then perform search
+            onSearchButtonClick() 
+          },
           expanded = searchActive,
           onExpandedChange = onActiveChange,
           modifier = Modifier.weight(1f),
@@ -100,8 +107,16 @@ internal fun ColumnScope.BookOverviewSearchBar(
         if (searchActive) {
           Spacer(modifier = Modifier.width(8.dp))
           
+          // Get focus manager to hide keyboard
+          val focusManager = LocalFocusManager.current
+          
           IconButton(
-            onClick = onSearchButtonClick,
+            onClick = { 
+              // Hide keyboard
+              focusManager.clearFocus()
+              // Then perform search
+              onSearchButtonClick() 
+            },
             modifier = Modifier.padding(end = 8.dp)
           ) {
             Icon(

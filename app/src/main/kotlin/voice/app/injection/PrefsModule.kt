@@ -166,7 +166,7 @@ object PrefsModule {
   @Singleton
   @BorrowLocation
   fun provideBorrowLocation(context: Context, prefs: AndroidPreferences): Pref<String> {
-  @Provides
+    return prefs.string(PrefKeys.BORROW_LOCATION, "")
   }
 }
 
