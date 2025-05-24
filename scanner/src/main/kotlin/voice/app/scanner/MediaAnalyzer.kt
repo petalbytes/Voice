@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.MediaFormat
 import android.net.Uri
 import androidx.media3.common.C
+import androidx.media3.common.FileTypes
 import androidx.media3.common.MediaItem
 import androidx.media3.common.ParserException
 import androidx.media3.container.MdtaMetadataEntry
@@ -20,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.withContext
+import voice.app.scanner.mp4.Mp4ChapterExtractor
 import voice.data.MarkData
 import voice.documentfile.CachedDocumentFile
 import voice.documentfile.nameWithoutExtension
@@ -31,7 +33,10 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.microseconds
 
 class MediaAnalyzer
-@Inject constructor(private val context: Context) {
+@Inject constructor(
+  private val context: Context,
+  private val mp4ChapterExtractor: Mp4ChapterExtractor,
+) {
 
   // we use a custom MediaSourceFactory because the default one for the
   // retriever also extracts the covers
@@ -69,7 +74,20 @@ class MediaAnalyzer
       }
     }
 
+    val fileType = FileTypes.inferFileTypeFromUri(file.uri)
+    if (fileType == FileTypes.MP4) {
+      parseMp4Chapters(file, builder)
+    }
+
     return builder.build(duration)
+  }
+
+  private suspend fun parseMp4Chapters(
+    file: CachedDocumentFile,
+    builder: Metadata.Builder,
+  ) {
+    val chapters = mp4ChapterExtractor.extractChapters(file.uri)
+    builder.chapters += chapters
   }
 
   private fun visitMdta(
