@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import voice.localborrow.BorrowService
-import voice.localborrow.DownloadProgress
 import voice.search.error.SearchError
 import voice.search.repository.DiscoveryResult
 import voice.search.repository.SearchRepository
@@ -68,13 +67,13 @@ class BookDetailsViewModel @AssistedInject constructor(
       // Immediately set to Starting state to grey out the button
       _state.value = currentState.copy(borrowProgress = BorrowProgress.Starting)
 
-      borrowService.downloadAndExtractRar(borrowLink, discoveryResult.title)
+      borrowService.borrowAndExtractRar(borrowLink, discoveryResult.title)
         .collect { progress ->
           val borrowProgress = when (progress) {
-            is DownloadProgress.Downloading -> BorrowProgress.Downloading(progress.progress)
-            is DownloadProgress.Extracting -> BorrowProgress.Extracting(progress.progress)
-            is DownloadProgress.Completed -> BorrowProgress.Completed
-            is DownloadProgress.Error -> BorrowProgress.Error(progress.exception.message ?: "Unknown error")
+            is voice.localborrow.BorrowProgress.Borrowing -> BorrowProgress.Borrowing(progress.progress)
+            is voice.localborrow.BorrowProgress.Extracting -> BorrowProgress.Extracting(progress.progress)
+            is voice.localborrow.BorrowProgress.Completed -> BorrowProgress.Completed
+            is voice.localborrow.BorrowProgress.Error -> BorrowProgress.Error(progress.exception.message ?: "Unknown error")
           }
           _state.value = currentState.copy(borrowProgress = borrowProgress)
         }
@@ -82,7 +81,7 @@ class BookDetailsViewModel @AssistedInject constructor(
   }
 
   fun cancelBorrowBook() {
-    borrowService.cancelDownload()
+    borrowService.cancelBorrow()
     
     // Reset borrow progress state
     val currentState = _state.value

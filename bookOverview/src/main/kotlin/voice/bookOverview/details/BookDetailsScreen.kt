@@ -50,8 +50,7 @@ import voice.search.repository.DiscoveryResult
 @Composable
 fun BookDetailsScreen(
   viewModel: BookDetailsViewModel,
-  onBackClick: () -> Unit,
-  onImportBook: (DiscoveryResult, AudioSource) -> Unit
+  onBackClick: () -> Unit
 ) {
   val viewState by viewModel.state.collectAsState()
 
@@ -59,7 +58,6 @@ fun BookDetailsScreen(
     viewState = viewState,
     onBackClick = onBackClick,
     onRetry = { viewModel.loadBookDetails() },
-    onImportBook = onImportBook,
     onBorrowBook = { borrowLink -> viewModel.borrowBook(borrowLink) },
     onCancelBorrow = { viewModel.cancelBorrowBook() }
   )
@@ -71,7 +69,6 @@ private fun BookDetailsContent(
   viewState: BookDetailsViewState,
   onBackClick: () -> Unit,
   onRetry: () -> Unit,
-  onImportBook: (DiscoveryResult, AudioSource) -> Unit,
   onBorrowBook: (String) -> Unit,
   onCancelBorrow: () -> Unit
 ) {
@@ -129,7 +126,6 @@ private fun BookDetailsContent(
             items(viewState.details.availableSources) { source ->
               AudioSourceItem(
                 source = source,
-                onImportClick = { onImportBook(viewState.discoveryResult, source) },
                 onBorrowClick = { source.borrowLink?.let(onBorrowBook) },
                 onCancelBorrow = onCancelBorrow,
                 borrowProgress = viewState.borrowProgress
@@ -255,7 +251,6 @@ private fun BookInfoHeader(
 @Composable
 private fun AudioSourceItem(
   source: AudioSource,
-  onImportClick: () -> Unit,
   onBorrowClick: () -> Unit,
   onCancelBorrow: () -> Unit,
   borrowProgress: BorrowProgress? = null
@@ -293,11 +288,11 @@ private fun AudioSourceItem(
           verticalAlignment = Alignment.CenterVertically
         ) {
           if (source.borrowLink != null) {
-            // Show button in disabled (greyed out) state during active download/extraction
-            val isDownloadInProgress = borrowProgress is BorrowProgress.Starting || 
-                                       borrowProgress is BorrowProgress.Downloading || 
+            // Show button in disabled (greyed out) state during active borrow/extraction
+            val isBorrowInProgress = borrowProgress is BorrowProgress.Starting ||
+                                       borrowProgress is BorrowProgress.Borrowing ||
                                        borrowProgress is BorrowProgress.Extracting
-            
+
             Button(
               onClick = onBorrowClick,
               enabled = borrowProgress == null || borrowProgress is BorrowProgress.Error
@@ -312,7 +307,7 @@ private fun AudioSourceItem(
                   modifier = Modifier.size(24.dp)
                 )
               }
-              is BorrowProgress.Downloading -> {
+              is BorrowProgress.Borrowing -> {
                 Box(
                   contentAlignment = Alignment.Center
                 ) {
@@ -320,15 +315,15 @@ private fun AudioSourceItem(
                     progress = progress.progress / 100f,
                     modifier = Modifier.size(24.dp)
                   )
-                  
-                  // X button to cancel download
+
+                  // X button to cancel borrow
                   IconButton(
                     onClick = onCancelBorrow,
                     modifier = Modifier.size(24.dp)
                   ) {
                     Icon(
                       imageVector = Icons.Default.Close,
-                      contentDescription = "Cancel download",
+                      contentDescription = "Cancel borrow",
                       modifier = Modifier.size(16.dp)
                     )
                   }
@@ -342,7 +337,7 @@ private fun AudioSourceItem(
                     progress = progress.progress / 100f,
                     modifier = Modifier.size(24.dp)
                   )
-                  
+
                   // X button to cancel extraction
                   IconButton(
                     onClick = onCancelBorrow,
@@ -359,7 +354,7 @@ private fun AudioSourceItem(
               is BorrowProgress.Completed -> {
                 Icon(
                   imageVector = Icons.Default.CheckCircle,
-                  contentDescription = "Download completed",
+                  contentDescription = "Borrow completed",
                   tint = MaterialTheme.colorScheme.primary,
                   modifier = Modifier.size(24.dp)
                 )
@@ -367,7 +362,7 @@ private fun AudioSourceItem(
               is BorrowProgress.Error -> {
                 Icon(
                   imageVector = Icons.Default.Error,
-                  contentDescription = "Download error",
+                  contentDescription = "Borrow error",
                   tint = MaterialTheme.colorScheme.error,
                   modifier = Modifier.size(24.dp)
                 )

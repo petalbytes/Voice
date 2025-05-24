@@ -18,7 +18,7 @@ sealed class BookDetailsViewState {
 
 sealed class BorrowProgress {
   object Starting : BorrowProgress()
-  data class Downloading(val progress: Int) : BorrowProgress()
+  data class Borrowing(val progress: Int) : BorrowProgress()
   data class Extracting(val progress: Int) : BorrowProgress()
   object Completed : BorrowProgress()
   data class Error(val message: String) : BorrowProgress()

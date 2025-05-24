@@ -80,15 +80,8 @@ class BookDetailsController(args: Bundle) : ComposeController(args) {
   override fun Content() {
     BookDetailsScreen(
       viewModel = viewModel,
-      onBackClick = { navigator.goBack() },
-      onImportBook = { result, source -> importBook(result, source) }
+      onBackClick = { navigator.goBack() }
     )
   }
 
-  private fun importBook(result: DiscoveryResult, source: AudioSource) {
-    // TODO: Implement book import functionality
-    // This would typically download the audio content and add it to the local library
-    // For now, just pop back to the previous screen
-    navigator.goBack()
-  }
 } 
