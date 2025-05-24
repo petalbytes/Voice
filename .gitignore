@@ -24,6 +24,3 @@ releases
 
 # Cursor and Windsurf
 .cursor/
-
-# Gradle properties
-gradle.properties
