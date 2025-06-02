@@ -119,60 +119,7 @@ internal fun BookSearchContent(
     }
     is BookSearchViewState.SearchResults -> {
       Column {
-        // Local results section
-        Text(
-          text = "Local Results",
-          style = MaterialTheme.typography.titleMedium,
-          modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
-
-        if (viewState.books.isEmpty()) {
-          Text(
-            text = "No local results found",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-          )
-        } else {
-          when (viewState.layoutMode) {
-            BookOverviewLayoutMode.List -> {
-              LazyColumn(
-                contentPadding = PaddingValues(vertical = 8.dp),
-                modifier = Modifier.padding(horizontal = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                content = {
-                  items(viewState.books) { book ->
-                    ListBookRow(
-                      book = book,
-                      onBookClick = onBookClick,
-                      onBookLongClick = onBookClick,
-                    )
-                  }
-                },
-              )
-            }
-            BookOverviewLayoutMode.Grid -> {
-              LazyVerticalGrid(
-                columns = GridCells.Fixed(gridColumnCount()),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
-                content = {
-                  items(viewState.books) { book ->
-                    GridBook(
-                      book = book,
-                      onBookClick = onBookClick,
-                      onBookLongClick = onBookClick,
-                    )
-                  }
-                },
-              )
-            }
-          }
-        }
-
-        // Discovery results section
-        Divider(modifier = Modifier.padding(vertical = 8.dp))
-
+        // Discovery results section - now placed at the top
         Text(
           text = "Discovery Results",
           style = MaterialTheme.typography.titleMedium,
@@ -239,6 +186,63 @@ internal fun BookSearchContent(
             )
           }
         }
+
+        // Local results section - now moved to the bottom and commented out
+        // We might add this functionality back later
+        Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+        // Local search results - commented out but kept for later use
+        /*
+        Text(
+          text = "Local Results",
+          style = MaterialTheme.typography.titleMedium,
+          modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+
+        if (viewState.books.isEmpty()) {
+          Text(
+            text = "No local results found",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+          )
+        } else {
+          when (viewState.layoutMode) {
+            BookOverviewLayoutMode.List -> {
+              LazyColumn(
+                contentPadding = PaddingValues(vertical = 8.dp),
+                modifier = Modifier.padding(horizontal = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                content = {
+                  items(viewState.books) { book ->
+                    ListBookRow(
+                      book = book,
+                      onBookClick = onBookClick,
+                      onBookLongClick = onBookClick,
+                    )
+                  }
+                },
+              )
+            }
+            BookOverviewLayoutMode.Grid -> {
+              LazyVerticalGrid(
+                columns = GridCells.Fixed(gridColumnCount()),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
+                content = {
+                  items(viewState.books) { book ->
+                    GridBook(
+                      book = book,
+                      onBookClick = onBookClick,
+                      onBookLongClick = onBookClick,
+                    )
+                  }
+                },
+              )
+            }
+          }
+        }
+        */
       }
     }
   }
