@@ -287,7 +287,7 @@ private fun AudioSourceItem(
           horizontalArrangement = Arrangement.spacedBy(8.dp),
           verticalAlignment = Alignment.CenterVertically
         ) {
-          if (source.borrowLink != null) {
+          if (source.borrowLink?.isNotBlank() == true) {
             // Show button in disabled (greyed out) state during active borrow/extraction
             val isBorrowInProgress = borrowProgress is BorrowProgress.Starting ||
                                        borrowProgress is BorrowProgress.Borrowing ||
@@ -369,6 +369,13 @@ private fun AudioSourceItem(
               }
               null -> { /* No progress indicator shown */ }
             }
+          } else {
+            // Show text indicating book is currently borrowed
+            Text(
+              text = "Currently borrowed",
+              style = MaterialTheme.typography.bodyMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
           }
         }
       }
