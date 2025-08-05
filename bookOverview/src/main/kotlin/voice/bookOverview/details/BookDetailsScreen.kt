@@ -187,8 +187,7 @@ private fun BookInfoHeader(
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = Modifier
-          .width(120.dp)
-          .height(180.dp)
+          .size(120.dp)
           .clip(RoundedCornerShape(8.dp)),
         fallback = painterResource(id = voice.common.R.drawable.album_art),
         error = painterResource(id = voice.common.R.drawable.album_art)

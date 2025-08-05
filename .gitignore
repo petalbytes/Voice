@@ -24,3 +24,5 @@ releases
 
 # Cursor and Windsurf
 .cursor/
+CLAUDE.md
+.claude/settings.local.json
