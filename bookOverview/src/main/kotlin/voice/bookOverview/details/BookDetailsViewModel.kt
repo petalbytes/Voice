@@ -20,7 +20,7 @@ class BookDetailsViewModel @AssistedInject constructor(
   private val repository: SearchRepository,
   private val borrowService: BorrowService,
   @Assisted private val discoveryResult: DiscoveryResult,
-  @Assisted private val mediaDetailsId: String
+  @Assisted private val mediaDetailsId: String,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow<BookDetailsViewState>(BookDetailsViewState.Loading)
@@ -46,14 +46,14 @@ class BookDetailsViewModel @AssistedInject constructor(
             onSuccess = { bookDetails ->
               _state.value = BookDetailsViewState.Success(
                 discoveryResult = discoveryResult,
-                details = bookDetails
+                details = bookDetails,
               )
             },
             onFailure = { error ->
               _state.value = BookDetailsViewState.Error(
-                error as? SearchError ?: SearchError.UnknownError("Unknown error", error)
+                error as? SearchError ?: SearchError.UnknownError("Unknown error", error),
               )
-            }
+            },
           )
         }
     }
@@ -82,7 +82,7 @@ class BookDetailsViewModel @AssistedInject constructor(
 
   fun cancelBorrowBook() {
     borrowService.cancelBorrow()
-    
+
     // Reset borrow progress state
     val currentState = _state.value
     if (currentState is BookDetailsViewState.Success) {
@@ -94,7 +94,7 @@ class BookDetailsViewModel @AssistedInject constructor(
   interface Factory {
     fun create(
       discoveryResult: DiscoveryResult,
-      mediaDetailsId: String
+      mediaDetailsId: String,
     ): BookDetailsViewModel
   }
-} 
+}

@@ -21,7 +21,7 @@ import voice.strings.R as StringsR
 fun PluginBaseUrlDialog(
   currentUrl: String,
   onUrlConfirm: (String) -> Unit,
-  onDismiss: () -> Unit
+  onDismiss: () -> Unit,
 ) {
   var url by remember { mutableStateOf(currentUrl) }
 
@@ -38,7 +38,7 @@ fun PluginBaseUrlDialog(
           label = { Text(stringResource(StringsR.string.pref_plugin_base_url_hint)) },
           modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp)
+            .padding(top = 8.dp),
         )
       }
     },
@@ -47,7 +47,7 @@ fun PluginBaseUrlDialog(
         onClick = {
           onUrlConfirm(url)
           onDismiss()
-        }
+        },
       ) {
         Text(stringResource(StringsR.string.dialog_confirm))
       }
@@ -56,6 +56,6 @@ fun PluginBaseUrlDialog(
       TextButton(onClick = onDismiss) {
         Text(stringResource(StringsR.string.dialog_cancel))
       }
-    }
+    },
   )
-} 
+}

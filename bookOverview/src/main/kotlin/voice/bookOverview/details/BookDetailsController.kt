@@ -2,14 +2,10 @@ package voice.bookOverview.details
 
 import android.os.Bundle
 import androidx.compose.runtime.Composable
-import com.squareup.anvil.annotations.ContributesTo
-import kotlinx.serialization.json.Json
 import voice.bookOverview.di.BookOverviewComponent
-import voice.common.AppScope
 import voice.common.compose.ComposeController
 import voice.common.navigation.Navigator
 import voice.common.rootComponentAs
-import voice.search.repository.AudioSource
 import voice.search.repository.DiscoveryResult
 import javax.inject.Inject
 
@@ -35,9 +31,9 @@ class BookDetailsController(args: Bundle) : ComposeController(args) {
       putString(NI_LANGUAGE, discoveryResult.language)
       putString(NI_MEDIA_DETAILS_URL, discoveryResult.mediaDetailsUrl)
       putString(NI_MEDIA_DETAILS_ID, mediaDetailsId)
-    }
+    },
   )
-  
+
   private val discoveryResult: DiscoveryResult by lazy {
     DiscoveryResult(
       id = args.getString(NI_ID) ?: "",
@@ -46,10 +42,10 @@ class BookDetailsController(args: Bundle) : ComposeController(args) {
       coverImageUrl = args.getString(NI_COVER_URL) ?: "",
       categories = args.getStringArrayList(NI_CATEGORIES)?.toList() ?: emptyList(),
       language = args.getString(NI_LANGUAGE) ?: "",
-      mediaDetailsUrl = args.getString(NI_MEDIA_DETAILS_URL) ?: ""
+      mediaDetailsUrl = args.getString(NI_MEDIA_DETAILS_URL) ?: "",
     )
   }
-  
+
   private val mediaDetailsId: String by lazy {
     args.getString(NI_MEDIA_DETAILS_ID) ?: ""
   }
@@ -62,7 +58,7 @@ class BookDetailsController(args: Bundle) : ComposeController(args) {
       .bookDetailsViewModelFactory
       .create(
         discoveryResult = discoveryResult,
-        mediaDetailsId = mediaDetailsId
+        mediaDetailsId = mediaDetailsId,
       )
   }
 
@@ -80,8 +76,7 @@ class BookDetailsController(args: Bundle) : ComposeController(args) {
   override fun Content() {
     BookDetailsScreen(
       viewModel = viewModel,
-      onBackClick = { navigator.goBack() }
+      onBackClick = { navigator.goBack() },
     )
   }
-
-} 
+}

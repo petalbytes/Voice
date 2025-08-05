@@ -30,7 +30,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
 import voice.bookOverview.bottomSheet.BottomSheetContent
-import voice.bookOverview.bottomSheet.BottomSheetItem
 import voice.bookOverview.deleteBook.DeleteBookDialog
 import voice.bookOverview.di.BookOverviewComponent
 import voice.bookOverview.editTitle.EditBookTitleDialog

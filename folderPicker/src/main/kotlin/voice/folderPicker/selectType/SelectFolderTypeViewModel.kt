@@ -43,18 +43,21 @@ class SelectFolderTypeViewModel
   private var selectedFolderMode: MutableState<FolderMode?> = mutableStateOf(null)
 
   private fun CachedDocumentFile.defaultFolderMode(): FolderMode {
-    return when {
-      name in listOf("Audiobooks", "Hörbücher") -> FolderMode.Audiobooks
-      children.any { it.isAudioFile() } && children.any { it.isDirectory } -> {
-        FolderMode.Audiobooks
+    return when (mode) {
+      Mode.Onboarding -> FolderMode.Audiobooks // Always use Top-Level Book Mode for onboarding
+      Mode.Default -> when {
+        name in listOf("Audiobooks", "Hörbücher") -> FolderMode.Audiobooks
+        children.any { it.isAudioFile() } && children.any { it.isDirectory } -> {
+          FolderMode.Audiobooks
+        }
+        children.any {
+          val fileIsAudiobookThresholdMb = 200
+          it.isAudioFile() && it.length > fileIsAudiobookThresholdMb * 1_000_000
+        } -> {
+          FolderMode.Audiobooks
+        }
+        else -> FolderMode.SingleBook
       }
-      children.any {
-        val fileIsAudiobookThresholdMb = 200
-        it.isAudioFile() && it.length > fileIsAudiobookThresholdMb * 1_000_000
-      } -> {
-        FolderMode.Audiobooks
-      }
-      else -> FolderMode.SingleBook
     }
   }
 
@@ -150,8 +153,11 @@ class SelectFolderTypeViewModel
       books = books,
       selectedFolderMode = selectedFolderMode,
       loading = loading,
-      noBooksDetected = !loading && books.isEmpty(),
-      addButtonVisible = books.isNotEmpty(),
+      noBooksDetected = !loading && books.isEmpty() && mode == Mode.Default,
+      addButtonVisible = when (mode) {
+        Mode.Onboarding -> !loading // Always allow adding in onboarding, even if empty
+        Mode.Default -> books.isNotEmpty()
+      },
     )
   }
 

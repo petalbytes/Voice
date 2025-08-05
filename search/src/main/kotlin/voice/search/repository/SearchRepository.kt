@@ -3,8 +3,8 @@ package voice.search.repository
 import android.util.Base64
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import voice.search.api.SearchApi
 import voice.search.api.DiscoverySearchResponse
+import voice.search.api.SearchApi
 import voice.search.error.SearchError
 import java.io.IOException
 import javax.inject.Inject
@@ -14,9 +14,7 @@ import javax.inject.Singleton
  * Repository for searching books and fetching details
  */
 @Singleton
-class SearchRepository @Inject constructor(
-  private val api: SearchApi
-) {
+class SearchRepository @Inject constructor(private val api: SearchApi) {
   /**
    * Search for books by query
    */
@@ -70,10 +68,13 @@ class SearchRepository @Inject constructor(
     }
   }
 
-  private fun createApiError(code: Int, message: String?): SearchError.ApiError {
+  private fun createApiError(
+    code: Int,
+    message: String?,
+  ): SearchError.ApiError {
     return SearchError.ApiError(
       code = code,
-      message = message ?: "Unknown API error"
+      message = message ?: "Unknown API error",
     )
   }
 
@@ -86,7 +87,7 @@ class SearchRepository @Inject constructor(
       categories = category,
       language = language,
       keywords = keywords,
-      mediaDetailsUrl = mediaDetails
+      mediaDetailsUrl = mediaDetails,
     )
   }
 }
@@ -102,7 +103,7 @@ data class DiscoveryResult(
   val categories: List<String> = emptyList(),
   val language: String = "",
   val keywords: List<String> = emptyList(),
-  val mediaDetailsUrl: String
+  val mediaDetailsUrl: String,
 ) {
   companion object {
     fun generateId(mediaDetailsUrl: String): String {
@@ -119,14 +120,14 @@ data class DiscoveryResult(
 data class BookDetails(
   val description: String,
   val writtenBy: String,
-  val availableSources: List<AudioSource>
+  val availableSources: List<AudioSource>,
 ) {
   companion object {
     fun fromResponse(response: voice.search.api.BookDetailsResponse): BookDetails {
       return BookDetails(
         description = response.description,
         writtenBy = response.writtenBy,
-        availableSources = response.availableSources.map { AudioSource.fromResponse(it) }
+        availableSources = response.availableSources.map { AudioSource.fromResponse(it) },
       )
     }
   }
@@ -136,7 +137,7 @@ data class AudioSource(
   val readBy: String,
   val fileSize: String,
   val m3u: String?,
-  val borrowLink: String?
+  val borrowLink: String?,
 ) {
   companion object {
     fun fromResponse(response: voice.search.api.AudioSourceResponse): AudioSource {
@@ -144,7 +145,7 @@ data class AudioSource(
         readBy = response.readBy,
         fileSize = response.fileSize,
         m3u = response.m3u,
-        borrowLink = response.borrowLink
+        borrowLink = response.borrowLink,
       )
     }
   }

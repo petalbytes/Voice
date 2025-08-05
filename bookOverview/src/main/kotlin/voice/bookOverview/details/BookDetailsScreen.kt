@@ -31,7 +31,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,7 +41,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import voice.common.compose.VoiceTheme
 import voice.search.error.SearchError
 import voice.search.repository.AudioSource
 import voice.search.repository.DiscoveryResult
@@ -50,7 +48,7 @@ import voice.search.repository.DiscoveryResult
 @Composable
 fun BookDetailsScreen(
   viewModel: BookDetailsViewModel,
-  onBackClick: () -> Unit
+  onBackClick: () -> Unit,
 ) {
   val viewState by viewModel.state.collectAsState()
 
@@ -59,7 +57,7 @@ fun BookDetailsScreen(
     onBackClick = onBackClick,
     onRetry = { viewModel.loadBookDetails() },
     onBorrowBook = { borrowLink -> viewModel.borrowBook(borrowLink) },
-    onCancelBorrow = { viewModel.cancelBorrowBook() }
+    onCancelBorrow = { viewModel.cancelBorrowBook() },
   )
 }
 
@@ -70,7 +68,7 @@ private fun BookDetailsContent(
   onBackClick: () -> Unit,
   onRetry: () -> Unit,
   onBorrowBook: (String) -> Unit,
-  onCancelBorrow: () -> Unit
+  onCancelBorrow: () -> Unit,
 ) {
   Scaffold(
     topBar = {
@@ -80,23 +78,23 @@ private fun BookDetailsContent(
           IconButton(onClick = onBackClick) {
             Icon(
               imageVector = Icons.Default.ArrowBack,
-              contentDescription = "Back"
+              contentDescription = "Back",
             )
           }
-        }
+        },
       )
-    }
+    },
   ) { paddingValues ->
     Box(
       modifier = Modifier
         .fillMaxSize()
-        .padding(paddingValues)
+        .padding(paddingValues),
     ) {
       when (viewState) {
         is BookDetailsViewState.Loading -> {
           Box(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
           ) {
             CircularProgressIndicator()
           }
@@ -105,12 +103,12 @@ private fun BookDetailsContent(
           LazyColumn(
             modifier = Modifier
               .fillMaxSize()
-              .padding(16.dp)
+              .padding(16.dp),
           ) {
             item {
               BookInfoHeader(
                 discoveryResult = viewState.discoveryResult,
-                description = viewState.details.description
+                description = viewState.details.description,
               )
             }
 
@@ -118,7 +116,7 @@ private fun BookDetailsContent(
               Spacer(modifier = Modifier.height(24.dp))
               Text(
                 text = "Available Sources",
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
               )
               Spacer(modifier = Modifier.height(8.dp))
             }
@@ -128,7 +126,7 @@ private fun BookDetailsContent(
                 source = source,
                 onBorrowClick = { source.borrowLink?.let(onBorrowBook) },
                 onCancelBorrow = onCancelBorrow,
-                borrowProgress = viewState.borrowProgress
+                borrowProgress = viewState.borrowProgress,
               )
               Spacer(modifier = Modifier.height(8.dp))
             }
@@ -140,11 +138,11 @@ private fun BookDetailsContent(
               .fillMaxSize()
               .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
           ) {
             Text(
               text = "Error loading book details",
-              style = MaterialTheme.typography.titleMedium
+              style = MaterialTheme.typography.titleMedium,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -156,7 +154,7 @@ private fun BookDetailsContent(
                 is SearchError.ParseError -> "Error parsing response: ${error.message}"
                 is SearchError.UnknownError -> "Unknown error: ${error.message}"
               },
-              style = MaterialTheme.typography.bodyMedium
+              style = MaterialTheme.typography.bodyMedium,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -174,12 +172,12 @@ private fun BookDetailsContent(
 @Composable
 private fun BookInfoHeader(
   discoveryResult: DiscoveryResult,
-  description: String
+  description: String,
 ) {
   Column {
     Row(
       modifier = Modifier.fillMaxWidth(),
-      verticalAlignment = Alignment.Top
+      verticalAlignment = Alignment.Top,
     ) {
       // Cover image
       AsyncImage(
@@ -190,7 +188,7 @@ private fun BookInfoHeader(
           .size(120.dp)
           .clip(RoundedCornerShape(8.dp)),
         fallback = painterResource(id = voice.common.R.drawable.album_art),
-        error = painterResource(id = voice.common.R.drawable.album_art)
+        error = painterResource(id = voice.common.R.drawable.album_art),
       )
 
       Spacer(modifier = Modifier.width(16.dp))
@@ -200,14 +198,14 @@ private fun BookInfoHeader(
         Text(
           text = discoveryResult.title,
           style = MaterialTheme.typography.headlineSmall,
-          fontWeight = FontWeight.Bold
+          fontWeight = FontWeight.Bold,
         )
 
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
           text = "By ${discoveryResult.authors.joinToString(", ")}",
-          style = MaterialTheme.typography.bodyLarge
+          style = MaterialTheme.typography.bodyLarge,
         )
 
         if (discoveryResult.categories.isNotEmpty()) {
@@ -215,7 +213,7 @@ private fun BookInfoHeader(
           Text(
             text = discoveryResult.categories.joinToString(", "),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
         }
 
@@ -223,7 +221,7 @@ private fun BookInfoHeader(
 
         Text(
           text = discoveryResult.language,
-          style = MaterialTheme.typography.bodySmall
+          style = MaterialTheme.typography.bodySmall,
         )
       }
     }
@@ -235,14 +233,14 @@ private fun BookInfoHeader(
     // Description
     Text(
       text = "Description",
-      style = MaterialTheme.typography.titleLarge
+      style = MaterialTheme.typography.titleLarge,
     )
 
     Spacer(modifier = Modifier.height(8.dp))
 
     Text(
       text = description.ifEmpty { "No description available" },
-      style = MaterialTheme.typography.bodyMedium
+      style = MaterialTheme.typography.bodyMedium,
     )
   }
 }
@@ -252,23 +250,23 @@ private fun AudioSourceItem(
   source: AudioSource,
   onBorrowClick: () -> Unit,
   onCancelBorrow: () -> Unit,
-  borrowProgress: BorrowProgress? = null
+  borrowProgress: BorrowProgress? = null,
 ) {
   Card(
-    modifier = Modifier.fillMaxWidth()
+    modifier = Modifier.fillMaxWidth(),
   ) {
     Column(
-      modifier = Modifier.padding(16.dp)
+      modifier = Modifier.padding(16.dp),
     ) {
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
       ) {
         Column(modifier = Modifier.weight(1f)) {
           Text(
             text = "Read by: ${source.readBy}",
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium,
           )
 
           Spacer(modifier = Modifier.height(4.dp))
@@ -276,7 +274,7 @@ private fun AudioSourceItem(
           Text(
             text = "File size: ${source.fileSize}",
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
         }
 
@@ -284,17 +282,17 @@ private fun AudioSourceItem(
 
         Row(
           horizontalArrangement = Arrangement.spacedBy(8.dp),
-          verticalAlignment = Alignment.CenterVertically
+          verticalAlignment = Alignment.CenterVertically,
         ) {
           if (source.borrowLink?.isNotBlank() == true) {
             // Show button in disabled (greyed out) state during active borrow/extraction
             val isBorrowInProgress = borrowProgress is BorrowProgress.Starting ||
-                                       borrowProgress is BorrowProgress.Borrowing ||
-                                       borrowProgress is BorrowProgress.Extracting
+              borrowProgress is BorrowProgress.Borrowing ||
+              borrowProgress is BorrowProgress.Extracting
 
             Button(
               onClick = onBorrowClick,
-              enabled = borrowProgress == null || borrowProgress is BorrowProgress.Error
+              enabled = borrowProgress == null || borrowProgress is BorrowProgress.Error,
             ) {
               Text("Borrow")
             }
@@ -303,49 +301,49 @@ private fun AudioSourceItem(
               is BorrowProgress.Starting -> {
                 // Show indeterminate progress indicator for Starting state
                 CircularProgressIndicator(
-                  modifier = Modifier.size(24.dp)
+                  modifier = Modifier.size(24.dp),
                 )
               }
               is BorrowProgress.Borrowing -> {
                 Box(
-                  contentAlignment = Alignment.Center
+                  contentAlignment = Alignment.Center,
                 ) {
                   CircularProgressIndicator(
                     progress = progress.progress / 100f,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
 
                   // X button to cancel borrow
                   IconButton(
                     onClick = onCancelBorrow,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   ) {
                     Icon(
                       imageVector = Icons.Default.Close,
                       contentDescription = "Cancel borrow",
-                      modifier = Modifier.size(16.dp)
+                      modifier = Modifier.size(16.dp),
                     )
                   }
                 }
               }
               is BorrowProgress.Extracting -> {
                 Box(
-                  contentAlignment = Alignment.Center
+                  contentAlignment = Alignment.Center,
                 ) {
                   CircularProgressIndicator(
                     progress = progress.progress / 100f,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
 
                   // X button to cancel extraction
                   IconButton(
                     onClick = onCancelBorrow,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   ) {
                     Icon(
                       imageVector = Icons.Default.Close,
                       contentDescription = "Cancel extraction",
-                      modifier = Modifier.size(16.dp)
+                      modifier = Modifier.size(16.dp),
                     )
                   }
                 }
@@ -355,7 +353,7 @@ private fun AudioSourceItem(
                   imageVector = Icons.Default.CheckCircle,
                   contentDescription = "Borrow completed",
                   tint = MaterialTheme.colorScheme.primary,
-                  modifier = Modifier.size(24.dp)
+                  modifier = Modifier.size(24.dp),
                 )
               }
               is BorrowProgress.Error -> {
@@ -363,7 +361,7 @@ private fun AudioSourceItem(
                   imageVector = Icons.Default.Error,
                   contentDescription = "Borrow error",
                   tint = MaterialTheme.colorScheme.error,
-                  modifier = Modifier.size(24.dp)
+                  modifier = Modifier.size(24.dp),
                 )
               }
               null -> { /* No progress indicator shown */ }
@@ -373,7 +371,7 @@ private fun AudioSourceItem(
             Text(
               text = "Currently borrowed",
               style = MaterialTheme.typography.bodyMedium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }

@@ -17,7 +17,7 @@ class FileCoverViewModel
 @Inject
 constructor(
   private val navigator: Navigator,
-  private val repo: BookRepository
+  private val repo: BookRepository,
 ) : BottomSheetItemViewModel {
 
   private var bookId: BookId? = null

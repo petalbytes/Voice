@@ -25,12 +25,12 @@ enum class BottomSheetItem(
   InternetCover(StringsR.string.download_book_cover, Icons.Outlined.Download),
   FileCover(StringsR.string.pick_book_cover, Icons.Outlined.Image),
   DeleteBook(StringsR.string.delete_book_bottom_sheet_title, Icons.Outlined.Delete),
-  
+
   // Category options for all books
   BookCategoryMarkAsNotStarted(StringsR.string.mark_as_not_started, Icons.Outlined.HourglassEmpty),
   BookCategoryMarkAsCurrent(StringsR.string.mark_as_current, Icons.Outlined.NotStarted),
   BookCategoryMarkAsCompleted(StringsR.string.mark_as_completed, Icons.Outlined.Done),
-  
+
   // Future streaming-specific options
   DownloadForOffline(StringsR.string.download_for_offline, Icons.Outlined.CloudDownload),
   ManageSubscription(StringsR.string.manage_subscription, Icons.Outlined.Settings),

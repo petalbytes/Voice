@@ -30,7 +30,7 @@ data class DiscoverySearchResponse(
   @SerialName("image_url")
   val imageUrl: String,
   @SerialName("media_details")
-  val mediaDetails: String
+  val mediaDetails: String,
 )
 
 /**
@@ -42,7 +42,7 @@ data class BookDetailsResponse(
   @SerialName("written_by")
   val writtenBy: String = "",
   @SerialName("available_sources")
-  val availableSources: List<AudioSourceResponse> = emptyList()
+  val availableSources: List<AudioSourceResponse> = emptyList(),
 )
 
 @Serializable
@@ -53,7 +53,7 @@ data class AudioSourceResponse(
   val fileSize: String,
   val m3u: String? = null,
   @SerialName("borrow_link")
-  val borrowLink: String? = null
+  val borrowLink: String? = null,
 ) {
   override fun toString(): String {
     return "AudioSourceResponse(readBy=$readBy, fileSize=$fileSize, m3u=$m3u, borrowLink=$borrowLink)"

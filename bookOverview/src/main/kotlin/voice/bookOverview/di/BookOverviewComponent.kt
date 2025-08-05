@@ -26,7 +26,7 @@ interface BookOverviewComponent {
   val fileCoverViewModel: FileCoverViewModel
   val bookSearchViewModelFactory: BookSearchViewModel.Factory
   val bookDetailsViewModelFactory: BookDetailsViewModel.Factory
-  
+
   fun inject(controller: BookDetailsController)
 
   @ContributesSubcomponent.Factory

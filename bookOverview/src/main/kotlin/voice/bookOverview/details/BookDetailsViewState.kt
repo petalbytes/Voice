@@ -6,13 +6,13 @@ import voice.search.repository.DiscoveryResult
 
 sealed class BookDetailsViewState {
   object Loading : BookDetailsViewState()
-  
+
   data class Success(
     val discoveryResult: DiscoveryResult,
     val details: BookDetails,
-    val borrowProgress: BorrowProgress? = null
+    val borrowProgress: BorrowProgress? = null,
   ) : BookDetailsViewState()
-  
+
   data class Error(val error: SearchError) : BookDetailsViewState()
 }
 
@@ -22,4 +22,4 @@ sealed class BorrowProgress {
   data class Extracting(val progress: Int) : BorrowProgress()
   object Completed : BorrowProgress()
   data class Error(val message: String) : BorrowProgress()
-} 
+}

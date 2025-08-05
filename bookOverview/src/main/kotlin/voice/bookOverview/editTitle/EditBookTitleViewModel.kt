@@ -37,7 +37,7 @@ constructor(private val repo: BookRepository) : BottomSheetItemViewModel {
   ) {
     if (item != BottomSheetItem.Title) return
     val book = repo.get(bookId) ?: return
-    
+
     _state.value = EditBookTitleState(
       title = book.content.name,
       bookId = bookId,

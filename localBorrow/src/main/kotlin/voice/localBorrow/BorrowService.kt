@@ -1,9 +1,9 @@
 package voice.localborrow
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
-import android.os.Environment
+import android.provider.DocumentsContract
+import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.github.junrar.Archive
 import kotlinx.coroutines.Dispatchers
@@ -24,12 +24,10 @@ import voice.data.supportedAudioFormats
 import voice.documentfile.CachedDocumentFile
 import voice.documentfile.CachedDocumentFileFactory
 import voice.logging.core.Logger
+import voice.pref.Pref
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
-import voice.pref.Pref
-import androidx.core.net.toUri
-import android.provider.DocumentsContract
 
 @Singleton
 class BorrowService @Inject constructor(
@@ -73,7 +71,10 @@ class BorrowService @Inject constructor(
    * @param bookName The name of the book (used for folder creation)
    * @return Flow of BorrowProgress that can be collected to track progress
    */
-  suspend fun borrowAndExtractRar(borrowLink: String, bookName: String): Flow<BorrowProgress> = callbackFlow {
+  suspend fun borrowAndExtractRar(
+    borrowLink: String,
+    bookName: String,
+  ): Flow<BorrowProgress> = callbackFlow {
     try {
       // Cancel any existing borrow first
       cancelBorrow()
@@ -99,7 +100,7 @@ class BorrowService @Inject constructor(
       val documentUri = if (DocumentsContract.isTreeUri(rootUri)) {
         DocumentsContract.buildDocumentUriUsingTree(
           rootUri,
-          DocumentsContract.getTreeDocumentId(rootUri)
+          DocumentsContract.getTreeDocumentId(rootUri),
         )
       } else {
         rootUri
@@ -166,7 +167,9 @@ class BorrowService @Inject constructor(
 
               if (contentLength > 0 && tempFile.length() != contentLength) {
                 cleanupEmptyBookFolder(bookFolder)
-                throw BorrowException.BorrowFailed("Borrowed file size (${tempFile.length()}) does not match expected size ($contentLength)")
+                throw BorrowException.BorrowFailed(
+                  "Borrowed file size (${tempFile.length()}) does not match expected size ($contentLength)",
+                )
               }
 
               // Clear active call now that borrow is complete
@@ -174,7 +177,7 @@ class BorrowService @Inject constructor(
 
               // Check if this is a RAR file that needs extraction
               val isRarFile = response.headers["Content-Type"]?.contains("rar", ignoreCase = true) == true ||
-                             borrowLink.endsWith(".rar", ignoreCase = true)
+                borrowLink.endsWith(".rar", ignoreCase = true)
 
               if (isRarFile) {
                 // Extract the RAR contents
@@ -187,13 +190,13 @@ class BorrowService @Inject constructor(
                 }
               } else {
                 // Move the audio file to the final location
-                val fileName = borrowLink.substringAfterLast('/').let { 
-                  java.net.URLDecoder.decode(it, "UTF-8") 
+                val fileName = borrowLink.substringAfterLast('/').let {
+                  java.net.URLDecoder.decode(it, "UTF-8")
                 }
-                
+
                 // Get appropriate mime type
                 val extension = fileName.substringAfterLast(".", "").lowercase()
-                val mimeType = when(extension) {
+                val mimeType = when (extension) {
                   "mp3" -> "audio/mpeg"
                   "m4a", "m4b" -> "audio/mp4"
                   "ogg" -> "audio/ogg"
@@ -206,7 +209,7 @@ class BorrowService @Inject constructor(
                 // Get root document file and create the audio file
                 val rootDocumentFile = DocumentFile.fromTreeUri(context, bookFolder.uri)
                   ?: throw BorrowException.ExtractionFailed("Could not access book folder")
-                
+
                 val audioFile = rootDocumentFile.createFile(mimeType, fileName)
                   ?: throw BorrowException.ExtractionFailed("Could not create file $fileName")
 
@@ -242,7 +245,6 @@ class BorrowService @Inject constructor(
       awaitClose {
         cancelBorrow()
       }
-
     } catch (e: Exception) {
       Logger.e(e, "Error setting up borrow")
       when (e) {
@@ -314,7 +316,7 @@ class BorrowService @Inject constructor(
             } else {
               // It's a file - determine appropriate mime type
               val extension = fileName.substringAfterLast(".", "").lowercase()
-              val mimeType = when(extension) {
+              val mimeType = when (extension) {
                 "mp3" -> "audio/mpeg"
                 "m4a", "m4b" -> "audio/mp4"
                 "ogg" -> "audio/ogg"
@@ -408,7 +410,10 @@ class BorrowService @Inject constructor(
     return currentDir
   }
 
-  private suspend fun createBookFolder(rootUri: Uri, bookName: String): CachedDocumentFile? {
+  private suspend fun createBookFolder(
+    rootUri: Uri,
+    bookName: String,
+  ): CachedDocumentFile? {
     return withContext(Dispatchers.IO) {
       val rootDoc = documentFileFactory.create(rootUri)
 
@@ -427,14 +432,21 @@ class BorrowService @Inject constructor(
    */
   private fun isRarSignature(signature: ByteArray): Boolean {
     if (signature.size < 7) return false
-    return signature[0] == 0x52.toByte() && // R
-           signature[1] == 0x61.toByte() && // a
-           signature[2] == 0x72.toByte() && // r
-           signature[3] == 0x21.toByte() && // !
-           signature[4] == 0x1A.toByte() &&
-           signature[5] == 0x07.toByte() &&
-           (signature[6] == 0x00.toByte() || // RAR4
-            signature[6] == 0x01.toByte())   // RAR5
+    return signature[0] == 0x52.toByte() &&
+      // R
+      signature[1] == 0x61.toByte() &&
+      // a
+      signature[2] == 0x72.toByte() &&
+      // r
+      signature[3] == 0x21.toByte() &&
+      // !
+      signature[4] == 0x1A.toByte() &&
+      signature[5] == 0x07.toByte() &&
+      (
+        signature[6] == 0x00.toByte() ||
+          // RAR4
+          signature[6] == 0x01.toByte()
+        ) // RAR5
   }
 
   /**
@@ -462,7 +474,10 @@ sealed class BorrowProgress {
 
 sealed class BorrowException : Exception() {
   data class BorrowFailed(override val message: String) : BorrowException()
-  data class ExtractionFailed(override val message: String, override val cause: Throwable? = null) : BorrowException()
+  data class ExtractionFailed(
+    override val message: String,
+    override val cause: Throwable? = null,
+  ) : BorrowException()
   object NoAudioFiles : BorrowException() {
     override val message: String = "No audio files found in RAR archive"
   }

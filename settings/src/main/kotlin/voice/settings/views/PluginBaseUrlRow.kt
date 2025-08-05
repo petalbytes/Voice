@@ -12,13 +12,16 @@ import androidx.compose.ui.res.stringResource
 import voice.strings.R as StringsR
 
 @Composable
-fun PluginBaseUrlRow(pluginBaseUrl: String, onClick: () -> Unit) {
+fun PluginBaseUrlRow(
+  pluginBaseUrl: String,
+  onClick: () -> Unit,
+) {
   ListItem(
     modifier = Modifier.clickable(onClick = onClick),
     leadingContent = {
       Icon(
         imageVector = Icons.Outlined.Api,
-        contentDescription = stringResource(StringsR.string.pref_plugin_base_url)
+        contentDescription = stringResource(StringsR.string.pref_plugin_base_url),
       )
     },
     headlineContent = {
@@ -26,6 +29,6 @@ fun PluginBaseUrlRow(pluginBaseUrl: String, onClick: () -> Unit) {
     },
     supportingContent = {
       Text(pluginBaseUrl)
-    }
+    },
   )
-} 
+}

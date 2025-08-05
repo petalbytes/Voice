@@ -10,14 +10,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -29,7 +28,6 @@ import voice.bookOverview.views.SettingsIcon
 import voice.common.BookId
 import voice.search.repository.DiscoveryResult
 import voice.strings.R
-import androidx.compose.ui.platform.LocalFocusManager
 
 @Composable
 internal fun ColumnScope.BookOverviewSearchBar(
@@ -61,11 +59,11 @@ internal fun ColumnScope.BookOverviewSearchBar(
             ""
           },
           onQueryChange = onQueryChange,
-          onSearch = { 
-            // Hide keyboard 
+          onSearch = {
+            // Hide keyboard
             focusManager.clearFocus()
             // Then perform search
-            onSearchButtonClick() 
+            onSearchButtonClick()
           },
           expanded = searchActive,
           onExpandedChange = onActiveChange,
@@ -103,21 +101,21 @@ internal fun ColumnScope.BookOverviewSearchBar(
             }
           },
         )
-        
+
         if (searchActive) {
           Spacer(modifier = Modifier.width(8.dp))
-          
+
           // Get focus manager to hide keyboard
           val focusManager = LocalFocusManager.current
-          
+
           IconButton(
-            onClick = { 
+            onClick = {
               // Hide keyboard
               focusManager.clearFocus()
               // Then perform search
-              onSearchButtonClick() 
+              onSearchButtonClick()
             },
-            modifier = Modifier.padding(end = 8.dp)
+            modifier = Modifier.padding(end = 8.dp),
           ) {
             Icon(
               imageVector = Icons.Outlined.Search,

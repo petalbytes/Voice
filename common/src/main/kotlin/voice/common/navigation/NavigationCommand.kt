@@ -23,7 +23,7 @@ sealed interface Destination {
     val coverImageUrl: String,
     val categories: List<String> = emptyList(),
     val language: String = "",
-    val mediaDetailsUrl: String
+    val mediaDetailsUrl: String,
   ) : Destination
 
   @Serializable

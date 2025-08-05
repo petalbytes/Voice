@@ -14,12 +14,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import voice.bookOverview.overview.BookOverviewItemViewState
 import voice.bookOverview.overview.BookOverviewLayoutMode
-import voice.common.BookId
 import voice.common.compose.ImmutableFile
 import voice.data.Book
 import voice.logging.core.Logger
 import voice.search.BookSearch
-import voice.search.repository.DiscoveryResult
 
 class BookSearchViewModel @AssistedInject constructor(
   private val bookSearch: BookSearch,
@@ -32,7 +30,7 @@ class BookSearchViewModel @AssistedInject constructor(
       suggestedAuthors = emptyList(),
       recentQueries = emptyList(),
       query = initialQuery,
-    )
+    ),
   )
   val viewState: StateFlow<BookSearchViewState> = _viewState.asStateFlow()
 
@@ -45,7 +43,7 @@ class BookSearchViewModel @AssistedInject constructor(
   // Update query without triggering search
   fun updateQuery(query: String) {
     val currentState = _viewState.value
-    
+
     if (query.isBlank()) {
       _viewState.value = BookSearchViewState.EmptySearch(
         suggestedAuthors = emptyList(),
@@ -66,27 +64,29 @@ class BookSearchViewModel @AssistedInject constructor(
   // Explicitly trigger search execution
   fun executeSearch(query: String) {
     if (query.isBlank()) return
-    
+
     viewModelScope.launch {
       // Start with loading state for discovery results
       val searchResults = BookSearchViewState.SearchResults(
         books = emptyList(),
         layoutMode = layoutMode,
         query = query,
-        discoveryResults = DiscoverySearchState.Loading
+        discoveryResults = DiscoverySearchState.Loading,
       )
       _viewState.value = searchResults
 
       // Perform the search
       val (books, discoveryFlow) = bookSearch.search(query)
-      
+
       // Update with local results
       _viewState.update { state ->
         if (state is BookSearchViewState.SearchResults) {
           state.copy(
-            books = books.map { it.toViewState() }
+            books = books.map { it.toViewState() },
           )
-        } else state
+        } else {
+          state
+        }
       }
 
       // Collect discovery results asynchronously
@@ -96,21 +96,27 @@ class BookSearchViewModel @AssistedInject constructor(
             _viewState.update { state ->
               if (state is BookSearchViewState.SearchResults) {
                 state.copy(
-                  discoveryResults = DiscoverySearchState.Success(discoveryResults)
+                  discoveryResults = DiscoverySearchState.Success(discoveryResults),
                 )
-              } else state
+              } else {
+                state
+              }
             }
           },
           onFailure = { error ->
             _viewState.update { state ->
               if (state is BookSearchViewState.SearchResults) {
                 state.copy(
-                  discoveryResults = DiscoverySearchState.Error(error as? voice.search.error.SearchError
-                    ?: voice.search.error.SearchError.UnknownError(error.message ?: "Unknown error", error))
+                  discoveryResults = DiscoverySearchState.Error(
+                    error as? voice.search.error.SearchError
+                      ?: voice.search.error.SearchError.UnknownError(error.message ?: "Unknown error", error),
+                  ),
                 )
-              } else state
+              } else {
+                state
+              }
             }
-          }
+          },
         )
       }
     }
@@ -129,12 +135,14 @@ class BookSearchViewModel @AssistedInject constructor(
         _viewState.update { state ->
           if (state is BookSearchViewState.SearchResults) {
             state.copy(discoveryResults = DiscoverySearchState.Loading)
-          } else state
+          } else {
+            state
+          }
         }
-        
+
         // Retry the discovery search
         val (_, discoveryFlow) = bookSearch.search(currentState.query)
-        
+
         // Process the results
         discoveryFlow.collectLatest { result ->
           result.fold(
@@ -142,21 +150,27 @@ class BookSearchViewModel @AssistedInject constructor(
               _viewState.update { state ->
                 if (state is BookSearchViewState.SearchResults) {
                   state.copy(
-                    discoveryResults = DiscoverySearchState.Success(discoveryResults)
+                    discoveryResults = DiscoverySearchState.Success(discoveryResults),
                   )
-                } else state
+                } else {
+                  state
+                }
               }
             },
             onFailure = { error ->
               _viewState.update { state ->
                 if (state is BookSearchViewState.SearchResults) {
                   state.copy(
-                    discoveryResults = DiscoverySearchState.Error(error as? voice.search.error.SearchError
-                      ?: voice.search.error.SearchError.UnknownError(error.message ?: "Unknown error", error))
+                    discoveryResults = DiscoverySearchState.Error(
+                      error as? voice.search.error.SearchError
+                        ?: voice.search.error.SearchError.UnknownError(error.message ?: "Unknown error", error),
+                    ),
                   )
-                } else state
+                } else {
+                  state
+                }
               }
-            }
+            },
           )
         }
       }
@@ -173,7 +187,7 @@ class BookSearchViewModel @AssistedInject constructor(
       remainingTime = DateUtils.formatElapsedTime((duration - position) / 1000),
     )
   }
-  
+
   private fun Book.calculateProgress(): Float {
     val progress = position.toFloat() / duration.toFloat()
     if (progress < 0F) {

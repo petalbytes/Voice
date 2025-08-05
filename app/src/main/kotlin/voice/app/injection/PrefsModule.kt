@@ -3,7 +3,6 @@ package voice.app.injection
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
-import android.os.Environment
 import androidx.datastore.core.DataStore
 import com.squareup.anvil.annotations.ContributesTo
 import dagger.Module
@@ -165,7 +164,10 @@ object PrefsModule {
   @Provides
   @Singleton
   @BorrowLocation
-  fun provideBorrowLocation(context: Context, prefs: AndroidPreferences): Pref<String> {
+  fun provideBorrowLocation(
+    context: Context,
+    prefs: AndroidPreferences,
+  ): Pref<String> {
     return prefs.string(PrefKeys.BORROW_LOCATION, "")
   }
 }

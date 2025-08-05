@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.datastore.core.DataStore
-import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,9 +24,7 @@ import voice.bookOverview.BookMigrationExplanationShown
 import voice.bookOverview.di.BookOverviewScope
 import voice.bookOverview.search.BookSearchViewModel
 import voice.bookOverview.search.BookSearchViewState
-import voice.bookOverview.search.DiscoverySearchState
 import voice.common.BookId
-import voice.common.comparator.sortedNaturally
 import voice.common.grid.GridCount
 import voice.common.grid.GridMode
 import voice.common.navigation.Destination
@@ -68,7 +64,7 @@ constructor(
   private val search: BookSearch,
   private val contentRepo: BookContentRepo,
   private val deviceHasStoragePermissionBug: DeviceHasStoragePermissionBug,
-  private val bookSearchViewModelFactory: BookSearchViewModel.Factory
+  private val bookSearchViewModelFactory: BookSearchViewModel.Factory,
 ) {
 
   private val scope = MainScope()
@@ -80,7 +76,7 @@ constructor(
       suggestedAuthors = emptyList(),
       recentQueries = emptyList(),
       query = "",
-    )
+    ),
   )
 
   fun attach() {
@@ -185,7 +181,7 @@ constructor(
   fun onSearchActiveChange(active: Boolean) {
     if (active && !searchActive) {
       query = ""
-      
+
       // Get the current layout mode from the same logic used in state()
       val layoutMode = when {
         gridModePref.value == GridMode.LIST -> BookOverviewLayoutMode.List
@@ -193,13 +189,13 @@ constructor(
         gridModePref.value == GridMode.FOLLOW_DEVICE && gridCount.useGridAsDefault() -> BookOverviewLayoutMode.Grid
         else -> BookOverviewLayoutMode.List
       }
-      
+
       // Create a new BookSearchViewModel when search is activated
       bookSearchViewModel = bookSearchViewModelFactory.create(
         initialQuery = "",
-        layoutMode = layoutMode
+        layoutMode = layoutMode,
       )
-      
+
       // Listen to search view model changes
       scope.launch {
         bookSearchViewModel?.viewState?.collectLatest { state ->
@@ -216,7 +212,7 @@ constructor(
       viewModel.updateQuery(query)
     }
   }
-  
+
   fun onSearchButtonClick() {
     bookSearchViewModel?.let { viewModel ->
       viewModel.executeSearch(query)
@@ -232,7 +228,7 @@ constructor(
     searchActive = false
     navigator.goTo(Destination.Playback(id))
   }
-  
+
   fun onDiscoveryResultClick(result: DiscoveryResult) {
     // Navigate to the book details screen
     navigator.goTo(
@@ -243,11 +239,11 @@ constructor(
         coverImageUrl = result.coverImageUrl,
         categories = result.categories,
         language = result.language,
-        mediaDetailsUrl = result.mediaDetailsUrl
-      )
+        mediaDetailsUrl = result.mediaDetailsUrl,
+      ),
     )
   }
-  
+
   fun onRetryDiscoverySearch() {
     bookSearchViewModel?.retryDiscoverySearch()
   }

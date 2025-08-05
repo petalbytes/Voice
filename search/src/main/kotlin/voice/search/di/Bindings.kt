@@ -30,9 +30,7 @@ object SearchModule {
    * request after the user changes the setting is routed to the new server
    * – no restart or graph rebuild needed.
    */
-  private fun dynamicBaseUrlInterceptor(
-    pluginBaseUrlPref: Pref<String>
-  ) = Interceptor { chain ->
+  private fun dynamicBaseUrlInterceptor(pluginBaseUrlPref: Pref<String>) = Interceptor { chain ->
     val fallback = "http://10.0.2.2:8080/".toHttpUrl()
     val current = pluginBaseUrlPref.value
       .takeIf { it.isNotBlank() }
@@ -50,7 +48,7 @@ object SearchModule {
 
   private fun createRetrofit(
     okHttpClient: OkHttpClient,
-    pluginBaseUrlPref: Pref<String>
+    pluginBaseUrlPref: Pref<String>,
   ): Retrofit {
     val contentType = "application/json".toMediaType()
     val json = Json { ignoreUnknownKeys = true }
@@ -68,7 +66,7 @@ object SearchModule {
 
     // The baseUrl here is never used – the interceptor rewrites it.
     return Retrofit.Builder()
-      .baseUrl("http://0.0.0.0/")          // dummy placeholder
+      .baseUrl("http://0.0.0.0/") // dummy placeholder
       .client(client)
       .addConverterFactory(json.asConverterFactory(contentType))
       .build()
@@ -78,7 +76,7 @@ object SearchModule {
   @Singleton
   fun provideSearchApi(
     okHttpClient: OkHttpClient,
-    @Named(PrefKeys.PLUGIN_BASE_URL) pluginBaseUrlPref: Pref<String>
+    @Named(PrefKeys.PLUGIN_BASE_URL) pluginBaseUrlPref: Pref<String>,
   ): SearchApi {
     Log.d("SearchAPI", "Initializing SearchApi module")
     return createRetrofit(okHttpClient, pluginBaseUrlPref)

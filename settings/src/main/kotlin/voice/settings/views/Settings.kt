@@ -37,9 +37,9 @@ import voice.common.rootComponentAs
 import voice.settings.SettingsListener
 import voice.settings.SettingsViewModel
 import voice.settings.SettingsViewState
-import voice.strings.R as StringsR
-import voice.settings.views.PluginBaseUrlRow
 import voice.settings.views.PluginBaseUrlDialog
+import voice.settings.views.PluginBaseUrlRow
+import voice.strings.R as StringsR
 
 @Composable
 @Preview

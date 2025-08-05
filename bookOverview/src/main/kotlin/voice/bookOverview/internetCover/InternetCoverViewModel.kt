@@ -16,7 +16,7 @@ class InternetCoverViewModel
 @Inject
 constructor(
   private val navigator: Navigator,
-  private val repo: BookRepository
+  private val repo: BookRepository,
 ) : BottomSheetItemViewModel {
 
   override suspend fun items(bookId: BookId): List<BottomSheetItem> {

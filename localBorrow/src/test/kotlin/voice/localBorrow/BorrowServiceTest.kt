@@ -1,12 +1,15 @@
 package voice.localborrow
 
+import android.content.Context
+import android.net.Uri
+import android.os.Environment
+import androidx.datastore.core.DataStore
+import androidx.documentfile.provider.DocumentFile
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
-import io.mockk.mockkStatic
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
@@ -18,11 +21,6 @@ import org.junit.Test
 import voice.data.folders.AudiobookFolders
 import voice.documentfile.CachedDocumentFile
 import voice.documentfile.CachedDocumentFileFactory
-import android.net.Uri
-import androidx.datastore.core.DataStore
-import android.content.Context
-import androidx.documentfile.provider.DocumentFile
-import android.os.Environment
 import voice.pref.Pref
 import java.io.File
 
@@ -41,7 +39,7 @@ class BorrowServiceTest {
 //    audiobookFolders = mockAudiobookFolders,
 //    rootAudioBookFolders = mockRootFolders,
     context = mockContext,
-    borrowLocation = mockBorrowLocation
+    borrowLocation = mockBorrowLocation,
   )
 
   @Test

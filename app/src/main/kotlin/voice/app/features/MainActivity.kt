@@ -20,8 +20,8 @@ import voice.app.AppController
 import voice.app.features.bookOverview.EditCoverDialogController
 import voice.app.injection.appComponent
 import voice.app.misc.conductor.asVerticalChangeHandlerTransaction
-import voice.bookmark.BookmarkController
 import voice.bookOverview.details.BookDetailsController
+import voice.bookmark.BookmarkController
 import voice.common.BookId
 import voice.common.navigation.Destination
 import voice.common.navigation.NavigationCommand
@@ -119,18 +119,18 @@ class MainActivity : AppCompatActivity() {
                   coverImageUrl = destination.coverImageUrl,
                   categories = destination.categories,
                   language = destination.language,
-                  mediaDetailsUrl = destination.mediaDetailsUrl
+                  mediaDetailsUrl = destination.mediaDetailsUrl,
                 )
 
                 // Extract the media details ID from the URL
                 val mediaDetailsId = destination.mediaDetailsUrl.substringAfter("id=", "")
-                
+
                 // Create and push the controller
                 val controller = BookDetailsController(
                   discoveryResult = discoveryResult,
-                  mediaDetailsId = mediaDetailsId
+                  mediaDetailsId = mediaDetailsId,
                 )
-                
+
                 router.pushController(controller.asVerticalChangeHandlerTransaction())
               }
             }

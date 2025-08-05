@@ -1,7 +1,6 @@
 package voice.bookOverview.search
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,8 +44,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import voice.bookOverview.overview.BookOverviewLayoutMode
-import voice.bookOverview.views.GridBook
-import voice.bookOverview.views.ListBookRow
 import voice.bookOverview.views.gridColumnCount
 import voice.common.BookId
 import voice.common.compose.plus
@@ -60,7 +57,7 @@ fun BookSearchScreen(
   contentPadding: PaddingValues,
   onQueryChange: (String) -> Unit,
   onBookClick: (BookId) -> Unit,
-  onDiscoveryResultClick: (DiscoveryResult) -> Unit
+  onDiscoveryResultClick: (DiscoveryResult) -> Unit,
 ) {
   val viewState = viewModel.viewState.collectAsState().value
 
@@ -70,7 +67,7 @@ fun BookSearchScreen(
     onQueryChange = onQueryChange,
     onBookClick = onBookClick,
     onDiscoveryResultClick = onDiscoveryResultClick,
-    onRetryDiscoverySearch = viewModel::retryDiscoverySearch
+    onRetryDiscoverySearch = viewModel::retryDiscoverySearch,
   )
 }
 
@@ -123,7 +120,7 @@ internal fun BookSearchContent(
         Text(
           text = "Discovery Results",
           style = MaterialTheme.typography.titleMedium,
-          modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+          modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
         )
 
         when (val discoveryState = viewState.discoveryResults) {
@@ -132,7 +129,7 @@ internal fun BookSearchContent(
               modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-              contentAlignment = Alignment.Center
+              contentAlignment = Alignment.Center,
             ) {
               CircularProgressIndicator()
             }
@@ -142,7 +139,7 @@ internal fun BookSearchContent(
               Text(
                 text = "No online results found",
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
               )
             } else {
               when (viewState.layoutMode) {
@@ -155,7 +152,7 @@ internal fun BookSearchContent(
                     items(discoveryState.results) { result ->
                       DiscoveryResultRow(
                         result = result,
-                        onClick = { onDiscoveryResultClick(result) }
+                        onClick = { onDiscoveryResultClick(result) },
                       )
                     }
                   }
@@ -170,10 +167,10 @@ internal fun BookSearchContent(
                       items(discoveryState.results) { result ->
                         DiscoveryResultGridItem(
                           result = result,
-                          onClick = { onDiscoveryResultClick(result) }
+                          onClick = { onDiscoveryResultClick(result) },
                         )
                       }
-                    }
+                    },
                   )
                 }
               }
@@ -182,7 +179,7 @@ internal fun BookSearchContent(
           is DiscoverySearchState.Error -> {
             DiscoveryErrorDisplay(
               error = discoveryState.error,
-              onRetry = onRetryDiscoverySearch
+              onRetry = onRetryDiscoverySearch,
             )
           }
         }
@@ -242,7 +239,7 @@ internal fun BookSearchContent(
             }
           }
         }
-        */
+         */
       }
     }
   }
@@ -251,19 +248,19 @@ internal fun BookSearchContent(
 @Composable
 private fun DiscoveryResultRow(
   result: DiscoveryResult,
-  onClick: () -> Unit
+  onClick: () -> Unit,
 ) {
   Card(
     modifier = Modifier
       .fillMaxWidth()
       .clickable(onClick = onClick)
-      .padding(vertical = 4.dp)
+      .padding(vertical = 4.dp),
   ) {
     Row(
       modifier = Modifier
         .fillMaxWidth()
         .padding(8.dp),
-      verticalAlignment = Alignment.CenterVertically
+      verticalAlignment = Alignment.CenterVertically,
     ) {
       // Cover image
       AsyncImage(
@@ -274,20 +271,20 @@ private fun DiscoveryResultRow(
           .size(60.dp)
           .clip(RoundedCornerShape(4.dp)),
         fallback = painterResource(id = voice.common.R.drawable.album_art),
-        error = painterResource(id = voice.common.R.drawable.album_art)
+        error = painterResource(id = voice.common.R.drawable.album_art),
       )
 
       Spacer(modifier = Modifier.width(16.dp))
 
       // Book info
       Column(
-        modifier = Modifier.weight(1f)
+        modifier = Modifier.weight(1f),
       ) {
         Text(
           text = result.title,
           style = MaterialTheme.typography.titleMedium,
           maxLines = 2,
-          overflow = TextOverflow.Ellipsis
+          overflow = TextOverflow.Ellipsis,
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -297,7 +294,7 @@ private fun DiscoveryResultRow(
           style = MaterialTheme.typography.bodyMedium,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           maxLines = 1,
-          overflow = TextOverflow.Ellipsis
+          overflow = TextOverflow.Ellipsis,
         )
 
         if (result.categories.isNotEmpty()) {
@@ -308,7 +305,7 @@ private fun DiscoveryResultRow(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
           )
         }
       }
@@ -319,7 +316,7 @@ private fun DiscoveryResultRow(
 @Composable
 private fun DiscoveryResultGridItem(
   result: DiscoveryResult,
-  onClick: () -> Unit
+  onClick: () -> Unit,
 ) {
   Card(
     modifier = Modifier
@@ -356,13 +353,13 @@ private fun DiscoveryResultGridItem(
 @Composable
 private fun DiscoveryErrorDisplay(
   error: SearchError,
-  onRetry: () -> Unit
+  onRetry: () -> Unit,
 ) {
   Column(
     modifier = Modifier
       .fillMaxWidth()
       .padding(16.dp),
-    horizontalAlignment = Alignment.CenterHorizontally
+    horizontalAlignment = Alignment.CenterHorizontally,
   ) {
     Text(
       text = when (error) {
@@ -372,7 +369,7 @@ private fun DiscoveryErrorDisplay(
         is SearchError.UnknownError -> "An unexpected error occurred"
       },
       style = MaterialTheme.typography.bodyMedium,
-      color = MaterialTheme.colorScheme.error
+      color = MaterialTheme.colorScheme.error,
     )
 
     Spacer(modifier = Modifier.size(8.dp))

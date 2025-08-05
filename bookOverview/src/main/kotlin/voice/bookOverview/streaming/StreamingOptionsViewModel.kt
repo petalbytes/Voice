@@ -20,7 +20,7 @@ class StreamingOptionsViewModel
 @Inject
 constructor(
   private val repo: BookRepository,
-  private val navigator: Navigator
+  private val navigator: Navigator,
 ) : BottomSheetItemViewModel {
 
   private val scope = MainScope()
@@ -41,7 +41,7 @@ constructor(
       else -> { /* Ignore other actions */ }
     }
   }
-  
+
   private fun downloadForOffline(bookId: BookId) {
     // TODO: Implement download functionality once streaming is implemented
     scope.launch {
@@ -50,9 +50,9 @@ constructor(
       // 2. Show a notification or progress
     }
   }
-  
+
   private fun openSubscriptionManagement() {
     // TODO: Navigate to subscription management screen once implemented
     // navigator.goTo(Destination.ManageSubscription)
   }
-} 
+}
